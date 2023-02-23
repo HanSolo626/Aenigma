@@ -62,15 +62,11 @@ class AffirmButton():
         nest = []
         cool = []
         v = map_size
-        some_number = 0
         t = True
         for x in range(map_size):
-            if some_number == 2:
-                some_number = 0
-            nest.append(floor_type + some_number)
+            nest.append(floor_type)
             cool.append(True)
             print("building lists")
-            some_number += 1
         for y in range(map_size):
             new_map[y+1] = nest
             access_map[y+1] = cool
