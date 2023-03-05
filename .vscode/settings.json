@@ -1,3 +1,7 @@
 {
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.extraPaths": [
+        "./map maker/game maps",
+        "./map maker/game_maps"
+    ],
 }
