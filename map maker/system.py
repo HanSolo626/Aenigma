@@ -2,6 +2,7 @@ import pygame
 import pygame.font
 import sys
 import time
+from image_library import ImageLibrary
 
 class QuitProgram():
     def __init__(self, ai_game, msg) -> None:
@@ -11,7 +12,7 @@ class QuitProgram():
         self.main_width, self.main_height = 100, 50
         self.button_color = (255,255,255)
         self.text_color = (0,0,0)
-        self.font =  pygame.font.SysFont(None, 30)
+        self.font =  pygame.font.SysFont("", 30)
 
         self.main_rect = pygame.Rect(0, 0, self.main_width, self.main_height)
         self.main_rect.x = 50
@@ -39,7 +40,9 @@ class DragMap():
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
 
-        self.image = pygame.image.load('images/drag_area.png')
+        self.image_library = ImageLibrary()
+
+        self.image = pygame.image.load(self.image_library.SYSTEM_IMAGES[1])
         self.rect = self.image.get_rect()
 
         self.rect.x = 250
@@ -77,11 +80,13 @@ class AjustSize():
         self.screen = ai_game.screen
         self.screen_rect = ai_game.screen.get_rect()
 
-        self.zoom_main_image = pygame.image.load('images/zoom_image.png')
+        self.image_library = ImageLibrary()
+
+        self.zoom_main_image = pygame.image.load(self.image_library.SYSTEM_IMAGES[2])
         self.zoom_main_rect = self.zoom_main_image.get_rect()
-        self.zoom_in_image = pygame.image.load('images/zoom_in_plus.png')
+        self.zoom_in_image = pygame.image.load(self.image_library.SYSTEM_IMAGES[3])
         self.zoom_in_rect = self.zoom_in_image.get_rect()
-        self.zoom_out_image = pygame.image.load('images/zoom_out_minus.png')
+        self.zoom_out_image = pygame.image.load(self.image_library.SYSTEM_IMAGES[4])
         self.zoom_out_rect = self.zoom_out_image.get_rect()
 
         self.zoom_main_rect.x = 790
@@ -116,5 +121,27 @@ class AjustSize():
         print("in")
         return new_map
 
+class GeneralInfo():
+    def __init__(self, ai_game) -> None:
+        self.screen = ai_game.screen
+        self.screen_rect = ai_game.screen.get_rect()
+
+        self.button_color = (40,40,40)
+        self.text_color = (255,255,255)
+        self.font = pygame.font.SysFont("", 25)
+
+        self.main_rect = pygame.Rect(0, 0, 700, 30)
+        self.main_rect.x = 250
+        self.main_rect.y = 760
+
+    def print_m(self, message):
+        self.screen.fill(self.button_color, self.main_rect)
+        self.main_image = self.font.render(message, True, self.text_color)
+        self.main_image_rect = self.main_image.get_rect()
+        self.main_image_rect.x = 252
+        self.main_image_rect.y = 765
+
+        self.screen.blit(self.main_image, self.main_image_rect)
+    
 
 

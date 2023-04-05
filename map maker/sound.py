@@ -10,7 +10,7 @@ class Sound():
         self.main_width, self.main_height = 150, 50
         self.button_color = (255,255,255)
         self.text_color = (0,0,0)
-        self.font =  pygame.font.SysFont(None, 40)
+        self.font =  pygame.font.SysFont("", 40)
 
         self.main_rect = pygame.Rect(0, 0, self.main_width, self.main_height)
         self.main_rect.x = 50
