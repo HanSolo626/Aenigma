@@ -6,9 +6,9 @@ import importlib
 import os.path as path
 from PIL import Image
 
-sys.path.append('/Users/carsonball/Desktop/aenigma_game/map maker/game_maps')
-sys.path.append('/Users/carsonball/Desktop/aenigma_game/saves')
-sys.path.append('/Users/carsonball/Desktop/aenigma_game/map maker')
+#sys.path.append('/Users/carsonball/Desktop/aenigma_game/map maker/game_maps')
+sys.path.append('saves')
+sys.path.append('map maker')
 
 
 from image_library import ImageLibrary
@@ -79,7 +79,7 @@ class MapMaker:
         self.square_zoom_y = 10
 
         self.shift_x = 30
-        self.shift_y = 30
+        self.shift_y = 230
 
         self.mouse_drag_multiplyer = 1
         self.multiplyer_status = False
@@ -92,6 +92,7 @@ class MapMaker:
         self.map_present = False
         self.current_file_open = ''
         self.user_text = ''
+        self.text_file_limit = 15
         self.text_in_stuff = False
         self.past_mode = "Open"
         self.current_tool = "Open"
@@ -129,7 +130,8 @@ class MapMaker:
                     self.current_message = self.user_text
                     self.set_active_tool("Past")
                 else:
-                    self.user_text += event.unicode
+                    if self.user_text.__len__() <= self.text_file_limit:
+                        self.user_text += event.unicode
 
             # controls
             elif event.type == pygame.KEYDOWN and self.map_present:
@@ -148,6 +150,8 @@ class MapMaker:
                     self.player_Y += 60 * self.mouse_drag_multiplyer
                 elif event.key == pygame.K_DOWN:
                     self.player_Y -= 60 * self.mouse_drag_multiplyer
+                elif event.key == pygame.K_SPACE and self.terrain_active:
+                    self.terrain.paint_terrain(self.map_data.terrain_map, self.player_X / 60, self.player_Y / 60, 1, self.pick_terrain.current_image)
 
             if self.text_active:
                 self.current_message = "Enter name: "+self.user_text
@@ -171,7 +175,7 @@ class MapMaker:
             im = self.IMAGES[im]
             dst.paste(im, (x * im.width, 0))
             p = x
-            print("X done:"+str(p))
+            self.current_message = "X done:"+str(p)
         return dst
     
     def get_concat_h_repeat_zoom(self, map, column, row_number):
@@ -186,7 +190,7 @@ class MapMaker:
             os.remove('image_file.png')
             dst.paste(im, (x * im.width, 0))
             p = x
-            print("X done:"+str(p))
+            self.current_message = "X done:"+str(p)
         return dst
 
     def get_concat_v_repeat(self, im, column, row):
@@ -194,7 +198,7 @@ class MapMaker:
         for y in range(row):
             dst.paste(im, (0, y * im.height))
             p = y
-            print("Y done:"+str(p))
+            self.current_message = "Y done:"+str(p)
         return dst
     
     def get_concat_v_repeat_zoom(self, im, column, row):
@@ -202,7 +206,7 @@ class MapMaker:
         for y in range(row):
             dst.paste(im, (0, y * im.height))
             p = y
-            print("Y done:"+str(p))
+            self.current_message = "Y done:"+str(p)
         return dst
 
     def get_concat_tile_repeat(self, map, row, column):
@@ -218,7 +222,7 @@ class MapMaker:
         with open('terrain_map.png', 'r') as mp:
             os.remove("terrain_map.png")
             mp = pygame.image.load(mp)
-            print("done")
+            self.current_message = "done"
             return mp
     
     def build_zoom_out_map(self, map, row, column):
@@ -226,7 +230,7 @@ class MapMaker:
         with open('terrain_map_zoom.png', 'r') as mp:
             os.remove("terrain_map_zoom.png")
             mp = pygame.image.load(mp)
-            print("done")
+            self.current_message = "done"
             return mp
 
     def display_whole_image_map(self, image, x, y):
@@ -268,6 +272,11 @@ class MapMaker:
         if self.terrain.main_rect.collidepoint(mouse_pos):
             self.draw_terrain_buttons()
             self.set_active_tool("Terrain")
+
+        if self.pick_terrain.rect_left.collidepoint(mouse_pos) and self.terrain_active == True:
+            self.pick_terrain.current_image -= 1
+        if self.pick_terrain.rect_right.collidepoint(mouse_pos) and self.terrain_active == True:
+            self.pick_terrain.current_image += 1
 
     def check_prop_functions(self, mouse_pos):
         if self.props.main_rect.collidepoint(mouse_pos):
@@ -357,6 +366,7 @@ class MapMaker:
             self.player_X = self.map_data.player_x
             self.player_Y = self.map_data.player_y
             
+            
 
     def display_speed(self):
         self.screen.blit(self.speed_image, self.speed_rect)
@@ -378,7 +388,7 @@ class MapMaker:
         if self.create_file_active == True:
             self.draw_create_file_buttons()
         if self.terrain_active == True:
-            self.terrain.draw_all()
+            self.draw_terrain_buttons()
         if self.prop_active == True:
             self.props.draw_all()
         if self.object_active == True:
@@ -409,6 +419,9 @@ class MapMaker:
 
     def draw_terrain_buttons(self):
         self.terrain.draw_main()
+        self.terrain.draw_marker()
+        self.pick_terrain.draw_main()
+        self.pick_terrain.draw_selected_image(self.pick_terrain.load_selected_terrain())
 
     def draw_prop_buttons(self):
         self.props.draw_main()
@@ -443,9 +456,6 @@ class MapMaker:
         self.draw_folders(True)
         self.set_active_tool("Open")
         while True:
-            # get map data
-            self.import_map(self.current_file_open)
-            
             if self.map_present:
                 # get map data
                 self.import_map(self.current_file_open)
@@ -462,7 +472,6 @@ class MapMaker:
                     self.display_whole_image_map(self.current_map, self.player_X - self.shift_x, self.player_Y - self.shift_y)
                     self.draw_sides()
                     self.draw_system()
-                    #self.test_button.draw_test()
                     self.draw_folders(True)
                     self.open_file.update_file_list()
                     pygame.display.update()
@@ -475,7 +484,6 @@ class MapMaker:
                     self.draw_default()
                     self.draw_sides()
                     self.draw_system()
-                    #self.test_button.draw_test()
                     self.draw_folders(False)
                     self.open_file.update_file_list()
                     pygame.display.update()

@@ -143,5 +143,3 @@ class GeneralInfo():
 
         self.screen.blit(self.main_image, self.main_image_rect)
     
-
-

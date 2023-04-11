@@ -102,6 +102,7 @@ class PickTerrain():
         self.button_color = (255,255,255)
         self.text_color = (0,0,0)
         self.font =  pygame.font.SysFont("", 40)
+        self.small_font = pygame.font.SysFont("", 30)
 
         self.main_rect = pygame.Rect(0, 0, self.main_width, self.main_height)
         self.main_rect.x = 985
@@ -109,7 +110,7 @@ class PickTerrain():
         self.main_name = "Pick Terrain"
 
         self.pick_name_image_rect = pygame.Rect(0, 0, self.pick_name_width, self.pick_name_height)
-        self.pick_name_image_rect.x = 1000
+        self.pick_name_image_rect.x = 1025
         self.pick_name_image_rect.y = 350
 
         self.current_image = 3
@@ -155,10 +156,13 @@ class PickTerrain():
         self.draw_selection_buttons(self.arrow_left, self.arrow_right)
 
     def prep_words(self, words):
-        image = self.font.render(words, True, self.text_color)
+        image = self.small_font.render(words, True, self.text_color)
+        pretend_image = self.small_font.render("", True, self.text_color)
         image_rect = image.get_rect()
-        image_rect.x = 1000
-        image_rect.y = 300
+        pretend_rect = pretend_image.get_rect()
+        pretend_rect.x = 1075
+        pretend_rect.y = 300
+        image_rect.center = pretend_rect.center
         return image, image_rect
     
     def prep_pick_name(self):
