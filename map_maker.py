@@ -104,6 +104,7 @@ class MapMaker:
         self.saved_text = 'new'
 
         self.displayed_map = {}
+        self.current_size = 60
 
         self.prep_speed()
         self.prep_default()
@@ -163,6 +164,12 @@ class MapMaker:
                     self.terrain.paint_terrain(self.map_data.terrain_map, self.player_X / 60, self.player_Y / 60, 1, self.pick_terrain.current_image)
                 elif event.key == pygame.K_t:
                     print(self.displayed_map)
+
+            if event.type == pygame.MOUSEWHEEL:
+                if event.y > 0:
+                    self.zoom_in()
+                if event.y < 0:
+                    self.zoom_out()
 
             if self.text_active:
                 self.current_message = "Enter name: "+self.user_text
@@ -254,16 +261,16 @@ class MapMaker:
         ls = []
         self.h = 0
         self.v = 0
-        for v in range(13):
+        for v in range(self.get_map_size()):
             self.v += 1
             self.v = int(self.v)
-            for h in range(13):
+            for h in range(self.get_map_size()):
                 self.h += 1
-                if (x + self.h - 7) < 0:
+                if (x + self.h - self.get_half_size()) < 0:
                     ls.append(0)
                 else:
                     try:
-                        ls.append(map[y + self.v - 6][x + self.h - 7])
+                        ls.append(map[y + self.v - (self.get_half_size() - 1)][x + self.h - self.get_half_size()])
                     except KeyError:
                         ls.append(0)
             self.displayed_map[self.v] = ls
@@ -273,17 +280,18 @@ class MapMaker:
         numberY = 50
         row_number = 1
         row_position = 0
-        for y in range(13):
-            for x in range(13):
+        for y in range(self.get_map_size()):
+            for x in range(self.get_map_size()):
                 image_number = self.displayed_map[row_number][row_position]
                 self.image = self.image_library.PRELOADED_IMAGES[image_number][0]
+                self.image = pygame.transform.scale(self.image, (self.current_size, self.current_size))
                 self.rect = self.image_library.PRELOADED_IMAGES[image_number][1]
                 self.rect.x = numberX - 40
                 self.rect.y = numberY - 40
                 self.screen.blit(self.image, self.rect)
-                numberX += 60
+                numberX += self.current_size
                 row_position +=1
-            numberY += 60
+            numberY += self.current_size
             row_number +=1
             numberX = 250
             row_position = 0
@@ -346,9 +354,17 @@ class MapMaker:
         if self.quit_program.main_rect.collidepoint(mouse_pos):
             self.quit_program.quit_program()
         elif self.ajust_size.zoom_out_rect.collidepoint(mouse_pos) and self.map_present:
-            self.current_map = self.zoom_out_map
+            self.zoom_out()
         elif self.ajust_size.zoom_in_rect.collidepoint(mouse_pos) and self.map_present:
-            self.current_map = self.terrain_map
+            self.zoom_in()
+
+    def zoom_out(self):
+        if not self.current_size == 10:
+            self.current_size -= 10
+    
+    def zoom_in(self):
+        if not self.current_size == 100:
+            self.current_size += 10
 
         # This is something I might work on later.
         #elif self.drag_area.rect.collidepoint(mouse_pos):
@@ -414,6 +430,12 @@ class MapMaker:
             self.map_data = importlib.import_module(file_name)
             self.player_X = self.map_data.player_x
             self.player_Y = self.map_data.player_y
+
+    def get_map_size(self):
+        return round(780 / self.current_size)
+
+    def get_half_size(self):
+        return round(self.get_map_size() / 2)
             
             
 
