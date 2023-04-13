@@ -81,6 +81,9 @@ class MapMaker:
         self.shift_x = 30
         self.shift_y = 230
 
+        self.camera_x = 0
+        self.camera_y = 0
+
         self.mouse_drag_multiplyer = 1
         self.multiplyer_status = False
 
@@ -99,6 +102,8 @@ class MapMaker:
 
         self.current_message = "Welcome to the Aenigma Map Maker!"
         self.saved_text = 'new'
+
+        self.displayed_map = {}
 
         self.prep_speed()
         self.prep_default()
@@ -144,14 +149,20 @@ class MapMaker:
                         self.mouse_drag_multiplyer = 1
                 elif event.key == pygame.K_RIGHT:
                     self.player_X -= 60 * self.mouse_drag_multiplyer
+                    self.camera_x += 1
                 elif event.key == pygame.K_LEFT:
                     self.player_X += 60 * self.mouse_drag_multiplyer
+                    self.camera_x -= 1
                 elif event.key == pygame.K_UP:
                     self.player_Y += 60 * self.mouse_drag_multiplyer
+                    self.camera_y -= 1
                 elif event.key == pygame.K_DOWN:
                     self.player_Y -= 60 * self.mouse_drag_multiplyer
+                    self.camera_y += 1
                 elif event.key == pygame.K_SPACE and self.terrain_active:
                     self.terrain.paint_terrain(self.map_data.terrain_map, self.player_X / 60, self.player_Y / 60, 1, self.pick_terrain.current_image)
+                elif event.key == pygame.K_t:
+                    print(self.displayed_map)
 
             if self.text_active:
                 self.current_message = "Enter name: "+self.user_text
@@ -238,6 +249,44 @@ class MapMaker:
         rect.x = x+600
         rect.y = y+600
         self.screen.blit(image, rect)
+
+    def new_display_map(self, map, x, y):
+        ls = []
+        self.h = 0
+        self.v = 0
+        for v in range(13):
+            self.v += 1
+            self.v = int(self.v)
+            for h in range(13):
+                self.h += 1
+                if (x + self.h - 7) < 0:
+                    ls.append(0)
+                else:
+                    try:
+                        ls.append(map[y + self.v - 6][x + self.h - 7])
+                    except KeyError:
+                        ls.append(0)
+            self.displayed_map[self.v] = ls
+            ls = []
+            self.h = 0
+        numberX = 250
+        numberY = 50
+        row_number = 1
+        row_position = 0
+        for y in range(13):
+            for x in range(13):
+                image_number = self.displayed_map[row_number][row_position]
+                self.image = self.image_library.PRELOADED_IMAGES[image_number][0]
+                self.rect = self.image_library.PRELOADED_IMAGES[image_number][1]
+                self.rect.x = numberX - 40
+                self.rect.y = numberY - 40
+                self.screen.blit(self.image, self.rect)
+                numberX += 60
+                row_position +=1
+            numberY += 60
+            row_number +=1
+            numberX = 250
+            row_position = 0
 
     def check_open_file_functions(self, mouse_pos):
         if self.open_file.main_rect.collidepoint(mouse_pos):
@@ -460,16 +509,17 @@ class MapMaker:
                 # get map data
                 self.import_map(self.current_file_open)
 
-                self.terrain_map = self.build_terrain_map(self.map_data.terrain_map, self.map_data.size_x, self.map_data.size_y)
-                self.zoom_out_map = self.build_zoom_out_map(self.map_data.terrain_map, self.map_data.size_x, self.map_data.size_y)
-                self.current_map = self.terrain_map
+                #self.terrain_map = self.build_terrain_map(self.map_data.terrain_map, self.map_data.size_x, self.map_data.size_y)
+                #self.zoom_out_map = self.build_zoom_out_map(self.map_data.terrain_map, self.map_data.size_x, self.map_data.size_y)
+                #self.current_map = self.terrain_map
 
                 while self.map_present:
                     self.screen.fill((0,0,0))
                     # refresh screen
                     self.check_events()
                     self.prep_speed()
-                    self.display_whole_image_map(self.current_map, self.player_X - self.shift_x, self.player_Y - self.shift_y)
+                    #self.display_whole_image_map(self.current_map, self.player_X - self.shift_x, self.player_Y - self.shift_y)
+                    self.new_display_map(self.map_data.terrain_map, self.camera_x, self.camera_y)
                     self.draw_sides()
                     self.draw_system()
                     self.draw_folders(True)
