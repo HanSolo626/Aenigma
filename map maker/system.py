@@ -128,7 +128,7 @@ class GeneralInfo():
 
         self.button_color = (40,40,40)
         self.text_color = (255,255,255)
-        self.font = pygame.font.SysFont("", 25)
+        self.font = pygame.font.SysFont("", 25, False, False)
 
         self.main_rect = pygame.Rect(0, 0, 700, 30)
         self.main_rect.x = 250

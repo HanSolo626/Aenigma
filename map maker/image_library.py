@@ -37,3 +37,25 @@ class ImageLibrary():
             6:"images/system_images/default.png",
             7:"images/system_images/marker.png"
         }
+
+        self.ZOOM_MOUSE_NUMBERS = {
+            20:-2,
+            19:-1,
+            18:-2,
+            17:-1,
+            16:-1,
+            15:0,
+            14:0,
+            13:1,
+            12:0,
+            11:2,
+            10:2,
+            9:3,
+            8:4,
+            7:6,
+            6:7,
+            5:11,
+            4:14,
+            3:21,
+            2:33
+        }
