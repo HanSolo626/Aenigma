@@ -214,76 +214,6 @@ class MapMaker:
                     self.check_prop_functions(mouse_pos)
 
 
-    def get_concat_h_repeat(self, map, column, row_number):
-        dst = Image.new('RGB', (self.square_x * column, self.square_y))
-        for x in range(column):
-            im = map[row_number][x]
-            im = self.IMAGES[im]
-            dst.paste(im, (x * im.width, 0))
-            p = x
-            self.current_message = "X done:"+str(p)
-        return dst
-    
-    def get_concat_h_repeat_zoom(self, map, column, row_number):
-        dst = Image.new('RGB', (self.square_zoom_x * column, self.square_zoom_y))
-        for x in range(column):
-            im = map[row_number][x]
-            im = self.PYGAME_IMAGES[im]
-            im = pygame.image.load(im)
-            im = pygame.transform.scale(im, (10, 10))
-            pygame.image.save(im, 'image_file.png')
-            im = Image.open('image_file.png')
-            os.remove('image_file.png')
-            dst.paste(im, (x * im.width, 0))
-            p = x
-            self.current_message = "X done:"+str(p)
-        return dst
-
-    def get_concat_v_repeat(self, im, column, row):
-        dst = Image.new('RGB', (self.square_x * column, self.square_y * row))
-        for y in range(row):
-            dst.paste(im, (0, y * im.height))
-            p = y
-            self.current_message = "Y done:"+str(p)
-        return dst
-    
-    def get_concat_v_repeat_zoom(self, im, column, row):
-        dst = Image.new('RGB', (self.square_zoom_x * column, self.square_zoom_y * row))
-        for y in range(row):
-            dst.paste(im, (0, y * im.height))
-            p = y
-            self.current_message = "Y done:"+str(p)
-        return dst
-
-    def get_concat_tile_repeat(self, map, row, column):
-        dst_h = self.get_concat_h_repeat(map, column, row)
-        return self.get_concat_v_repeat(dst_h, column, row)
-
-    def get_concat_tile_repeat_zoom(self, map, row, column):
-        dst_h = self.get_concat_h_repeat_zoom(map, column, row)
-        return self.get_concat_v_repeat_zoom(dst_h, column, row)
-
-    def build_terrain_map(self, map, row, column):
-        self.get_concat_tile_repeat(map, row, column).save('terrain_map.png')
-        with open('terrain_map.png', 'r') as mp:
-            os.remove("terrain_map.png")
-            mp = pygame.image.load(mp)
-            self.current_message = "done"
-            return mp
-    
-    def build_zoom_out_map(self, map, row, column):
-        self.get_concat_tile_repeat_zoom(map, row, column).save('terrain_map_zoom.png')
-        with open('terrain_map_zoom.png', 'r') as mp:
-            os.remove("terrain_map_zoom.png")
-            mp = pygame.image.load(mp)
-            self.current_message = "done"
-            return mp
-
-    def display_whole_image_map(self, image, x, y):
-        rect = image.get_rect()
-        rect.x = x+600
-        rect.y = y+600
-        self.screen.blit(image, rect)
 
     def new_display_map(self, map, x, y):
         ls = []
@@ -314,8 +244,8 @@ class MapMaker:
                 self.image = self.image_library.PRELOADED_IMAGES[image_number][0]
                 self.image = pygame.transform.scale(self.image, (self.current_size, self.current_size))
                 self.rect = self.image_library.PRELOADED_IMAGES[image_number][1]
-                self.rect.x = numberX# - 40
-                self.rect.y = numberY# - 40
+                self.rect.x = numberX
+                self.rect.y = numberY
                 self.screen.blit(self.image, self.rect)
                 numberX += self.current_size
                 row_position +=1
@@ -369,6 +299,11 @@ class MapMaker:
         if self.pick_terrain.rect_right.collidepoint(mouse_pos) and self.terrain_active == True:
             self.pick_terrain.current_image += 1
 
+        if self.terrain.rect_left.collidepoint(mouse_pos) and self.terrain_active:
+            self.terrain.increase_brush()
+        if self.terrain.rect_right.collidepoint(mouse_pos) and self.terrain_active:
+            self.terrain.decrease_brush()
+
     def check_prop_functions(self, mouse_pos):
         if self.props.main_rect.collidepoint(mouse_pos):
             self.draw_prop_buttons()
@@ -402,7 +337,6 @@ class MapMaker:
         if self.right_click == True and self.recorded_lod == False:
             self.move_x = pygame.mouse.get_pos()[0]
             self.move_y = pygame.mouse.get_pos()[1]
-            print(pygame.mouse.get_pos())
             if (abs(self.old_move_x) - self.move_x) > 10:
                 self.camera_x += 1 * self.mouse_drag_multiplyer
                 self.recorded_lod = True
@@ -415,19 +349,27 @@ class MapMaker:
             if (abs(self.old_move_y) - self.move_y) < -10:
                 self.camera_y -= 1 * self.mouse_drag_multiplyer
                 self.recorded_lod = True
-        elif self.left_click == True and self.terrain_active:
-            self.move_x = self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0]
-            self.move_y = self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]
+        elif self.left_click == True and self.terrain_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
+            #print(self.move_x, self.move_y)
+            #print(self.get_minus_zoom_number())
+            #print(self.get_mouse_pos(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]))
+            self.terrain_instance = self.terrain.paint_terrain(
+                self.terrain_instance,
+                self.get_mouse_pos(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[0],
+                self.get_mouse_pos(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[1],
+                self.terrain.brush_size,
+                self.pick_terrain.current_image
+                )
 
 
     def get_mouse_pos(self, x, y):
-        x = x + self.camera_x - math.floor(self.current_size / 2) + math.ceil(self.current_size / 2) - self.get_minus_zoom_number()
-        y = y + self.camera_y - math.floor(self.current_size / 2) + math.ceil(self.current_size / 2) - self.get_minus_zoom_number()
+        x = x + self.camera_x - math.floor(self.current_size / 2) + math.ceil(self.current_size / 2) + (self.get_minus_zoom_number()) + self.get_minus_zoom_number()
+        y = y + self.camera_y - math.floor(self.current_size / 2) + math.ceil(self.current_size / 2) + (self.get_minus_zoom_number()) + self.get_minus_zoom_number()
         return x , y
     
     def get_minus_zoom_number(self):
         a = self.image_library.ZOOM_MOUSE_NUMBERS[int(self.current_size / 5)]
-        return a + 5
+        return a -5
 
 
     def zoom_out(self):
@@ -441,8 +383,8 @@ class MapMaker:
     def get_mouse_click_pos(self, pos, size):
         x = pos[0] - 250
         y = pos[1] - 50
-        x = math.floor(x / size)
-        y = math.floor(y / size)
+        x = math.floor(x / size) - self.get_minus_zoom_number()
+        y = math.floor(y / size) - self.get_minus_zoom_number()
         return (x, y)
 
         # This is something I might work on later.
@@ -499,14 +441,14 @@ class MapMaker:
         elif mode == "Open":
             self.open_file_active = True
         self.current_tool = mode
-        print(self.current_tool)
-        print(self.text_active)
 
     def import_map(self, file_name):
         if file_name == '':
             self.map_present = False
         else:
             self.map_data = importlib.import_module(file_name)
+            self.map_data_instance = importlib.import_module(file_name)
+            self.terrain_instance = self.map_data_instance.terrain_map
             self.player_X = self.map_data.player_x
             self.player_Y = self.map_data.player_y
 
@@ -568,8 +510,7 @@ class MapMaker:
         self.pick_terrain.draw_pick_name()
 
     def draw_terrain_buttons(self):
-        self.terrain.draw_main()
-        self.terrain.draw_marker()
+        self.terrain.draw_all()
         self.pick_terrain.draw_main()
         self.pick_terrain.draw_selected_image(self.pick_terrain.load_selected_terrain())
 
@@ -620,8 +561,7 @@ class MapMaker:
                     self.check_events()
                     self.check_mouse()
                     self.prep_speed()
-                    #self.display_whole_image_map(self.current_map, self.player_X - self.shift_x, self.player_Y - self.shift_y)
-                    self.new_display_map(self.map_data.terrain_map, self.camera_x, self.camera_y)
+                    self.new_display_map(self.map_data_instance.terrain_map, self.camera_x, self.camera_y)
                     self.draw_sides()
                     self.draw_system()
                     self.draw_folders(True)

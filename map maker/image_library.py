@@ -24,7 +24,8 @@ class ImageLibrary():
             1:[pygame.image.load(self.PYGAME_IMAGES[1]), pygame.image.load(self.PYGAME_IMAGES[1]).get_rect()],
             2:[pygame.image.load(self.PYGAME_IMAGES[2]), pygame.image.load(self.PYGAME_IMAGES[2]).get_rect()],
             3:[pygame.image.load(self.PYGAME_IMAGES[3]), pygame.image.load(self.PYGAME_IMAGES[3]).get_rect()],
-            0:[pygame.image.load(self.PYGAME_IMAGES[4]), pygame.image.load(self.PYGAME_IMAGES[4]).get_rect()]
+            0:[pygame.image.load(self.PYGAME_IMAGES[4]), pygame.image.load(self.PYGAME_IMAGES[4]).get_rect()],
+            4:[pygame.image.load(self.PYGAME_IMAGES[4]), pygame.image.load(self.PYGAME_IMAGES[4]).get_rect()]
         }
 
 
@@ -39,23 +40,23 @@ class ImageLibrary():
         }
 
         self.ZOOM_MOUSE_NUMBERS = {
-            20:-2,
-            19:-1,
-            18:-2,
-            17:-1,
-            16:-1,
+            20:2,
+            19:1,
+            18:2,
+            17:1,
+            16:1,
             15:0,
             14:0,
-            13:1,
+            13:-1,
             12:0,
-            11:2,
-            10:2,
-            9:3,
-            8:4,
-            7:6,
-            6:7,
-            5:11,
-            4:14,
-            3:21,
-            2:33
+            11:-2,
+            10:-2,
+            9:-3,
+            8:-4,
+            7:-6,
+            6:-7,
+            5:-11,
+            4:-14,
+            3:-21,
+            2:-33
         }
