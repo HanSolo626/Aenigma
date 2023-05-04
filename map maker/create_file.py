@@ -81,12 +81,17 @@ class AffirmButton():
                 new_map[y+1] = nest
                 access_map[y+1] = cool
 
-                    
-            with open(new_filename+".py", 'x') as file_object:
-                file_object.write("terrain_map = "+str(new_map)+"\naccess_map = "+str(access_map)+"\nprop_map = []\nobject_map = []\nsound_map = []\nplayer_x = 1\nplayer_y = 1\nsize_x = "+str(map_size)+"\nsize_y = "+str(map_size))
+            self.write_to_file(new_filename, 'x', new_map, [], [], [])
+            #with open(new_filename+".py", 'x') as file_object:
+            #    file_object.write("terrain_map = "+str(new_map)+"\naccess_map = "+str(access_map)+"\nprop_map = []\nobject_map = []\nsound_map = []\nplayer_x = 1\nplayer_y = 1\nsize_x = "+str(map_size)+"\nsize_y = "+str(map_size))
 
-            shutil.move(new_filename+".py","saves/"+new_filename+".py")
             return "Map created succesfully!"
+        
+    def write_to_file(self, filename, mode, terrain, prop, object_, sound):
+        with open(filename+".py", mode) as file_object:
+            file_object.write("terrain_map = "+str(terrain)+"\nprop_map = "+str(prop)+"\nobject_map = "+str(object_)+"\nsound_map = "+str(sound)+"\nplayer_x = 1\nplayer_y = 1\nsize_x = "+str(200)+"\nsize_y = "+str(200))
+        shutil.move(filename+".py","saves/"+filename+".py")
+
 
 
 
@@ -176,7 +181,7 @@ class PickTerrain():
 
     def load_selected_terrain(self):
         if self.current_image <= 0:
-            self.current_image = self.image_library.PYGAME_IMAGES.__len__()
-        elif self.current_image >= self.image_library.PYGAME_IMAGES.__len__()+1:
+            self.current_image = self.image_library.PRELOADED_IMAGES.__len__()
+        elif self.current_image >= self.image_library.PRELOADED_IMAGES.__len__()+1:
             self.current_image = 1
-        return pygame.image.load(self.image_library.PYGAME_IMAGES[self.current_image])
+        return self.image_library.PRELOADED_IMAGES[self.current_image][0]

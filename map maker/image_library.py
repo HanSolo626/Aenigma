@@ -1,31 +1,20 @@
-from PIL import Image
+
 import sys
 import pygame
+import os
 
-sys.path.append('/Users/carsonball/Desktop/aenigma_game/images')
+sys.path.append('aenigma_game/images')
 
 class ImageLibrary():
     def __init__(self) -> None:
-        self.IMAGES = {
-            1:Image.open("images/terrain_images/test_square.png"),
-            2:Image.open("images/terrain_images/orange_test.png"),
-            3:Image.open("images/terrain_images/detailed_grass.png"),
-            4:Image.open("images/terrain_images/dark_square.png")
-        }
+
+        terrain_images = self.get_terrain_images()
 
         self.PYGAME_IMAGES = {
             1:"images/terrain_images/test_square.png",
             2:"images/terrain_images/orange_test.png",
             3:"images/terrain_images/detailed_grass.png",
             4:"images/terrain_images/dark_square.png"
-        }
-
-        self.PRELOADED_IMAGES = {
-            1:[pygame.image.load(self.PYGAME_IMAGES[1]), pygame.image.load(self.PYGAME_IMAGES[1]).get_rect()],
-            2:[pygame.image.load(self.PYGAME_IMAGES[2]), pygame.image.load(self.PYGAME_IMAGES[2]).get_rect()],
-            3:[pygame.image.load(self.PYGAME_IMAGES[3]), pygame.image.load(self.PYGAME_IMAGES[3]).get_rect()],
-            0:[pygame.image.load(self.PYGAME_IMAGES[4]), pygame.image.load(self.PYGAME_IMAGES[4]).get_rect()],
-            4:[pygame.image.load(self.PYGAME_IMAGES[4]), pygame.image.load(self.PYGAME_IMAGES[4]).get_rect()]
         }
 
 
@@ -36,8 +25,17 @@ class ImageLibrary():
             4:"images/system_images/zoom_out_minus.png",
             5:"images/system_images/arrow.png",
             6:"images/system_images/default.png",
-            7:"images/system_images/marker.png"
+            7:"images/system_images/marker.png",
+            8:"images/system_images/test_mouse.png"
         }
+
+        self.PRELOADED_IMAGES = {}
+        self.PRELOADED_IMAGES[0] = [terrain_images[1], terrain_images[1].get_rect()]
+        for c in range(terrain_images[0].__len__()):
+            self.PRELOADED_IMAGES[c+1] = [terrain_images[0][c-1], terrain_images[0][c-1].get_rect()]
+        print(self.PRELOADED_IMAGES)
+
+        
 
         self.ZOOM_MOUSE_NUMBERS = {
             20:2,
@@ -60,3 +58,16 @@ class ImageLibrary():
             3:-21,
             2:-33
         }
+
+    def get_terrain_images(self):
+        """Returns a list of all 60x60 px. images along with the dark square."""
+
+        folderlist = os.listdir("images/terrain_images")
+        c = pygame.image.load("images/terrain_images/dark_square.png")
+        folderlist.remove("dark_square.png")
+        b = []
+        for v in range(folderlist.__len__()):
+            a = pygame.image.load("images/terrain_images/"+folderlist[v])
+            if a.get_size() == (60, 60):
+                b.append(a)
+        return (b, c)

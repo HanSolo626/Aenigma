@@ -4,7 +4,6 @@ import os
 import pygame.font
 import importlib
 import os.path as path
-from PIL import Image
 import math
 
 #sys.path.append('/Users/carsonball/Desktop/aenigma_game/map maker/game_maps')
@@ -30,6 +29,7 @@ from side_areas import AreaRight
 from side_areas import AreaUp
 from side_areas import AreaDown
 from system import GeneralInfo
+from system import SaveFile
 
 
 class MapMaker:
@@ -55,6 +55,7 @@ class MapMaker:
         self.drag_area = DragMap(self)
         self.ajust_size = AjustSize(self)
         self.print = GeneralInfo(self)
+        self.save = SaveFile(self)
 
         # make folder buttons
         self.test_button = TestButton(self, "Test")
@@ -69,7 +70,6 @@ class MapMaker:
         self.affirm_file = AffirmButton(self, "Build File")
         self.pick_terrain = PickTerrain(self, "Pick Terrain")
 
-        self.IMAGES = self.image_library.IMAGES
 
         self.PYGAME_IMAGES = self.image_library.PYGAME_IMAGES
 
@@ -117,10 +117,13 @@ class MapMaker:
 
         #random stuff
         self.h = False
+        self.r = False
 
         self.prep_speed()
         self.prep_default()
         self.set_active_tool("Open")
+
+        #pygame.mouse.set_cursor(self.image_library.PRELOADED_IMAGES[5][0])
 
 
 
@@ -326,8 +329,16 @@ class MapMaker:
             self.zoom_out()
         elif self.ajust_size.zoom_in_rect.collidepoint(mouse_pos) and self.map_present:
             self.zoom_in()
+            print(self.current_file_open)
+
         elif self.drag_area.rect.collidepoint(mouse_pos):
             self.recorded_lod = True
+
+        elif self.save.main_rect.collidepoint(mouse_pos) and self.map_present and self.save.changes_made:
+            self.affirm_file.write_to_file(self.current_file_open, 'w', self.terrain_instance, [], [], [])
+            self.save.changes_made = False
+            
+
 
     def check_mouse(self):
         if self.recorded_lod == True:
@@ -360,6 +371,11 @@ class MapMaker:
                 self.terrain.brush_size,
                 self.pick_terrain.current_image
                 )
+            self.r = True
+        elif self.left_click == False and self.terrain_active and self.r:
+            self.save.changes_made = True
+            self.r = False
+
 
 
     def get_mouse_pos(self, x, y):
@@ -451,6 +467,7 @@ class MapMaker:
             self.terrain_instance = self.map_data_instance.terrain_map
             self.player_X = self.map_data.player_x
             self.player_Y = self.map_data.player_y
+            self.save.changes_made = False
 
     def get_map_size(self):
         return round(780 / self.current_size)
@@ -494,6 +511,8 @@ class MapMaker:
         self.display_speed()
         self.ajust_size.draw_all_zoom()
         self.print.print_m(self.current_message)
+        self.save.draw_all()
+
 
     def draw_sides(self):
         self.area_left.draw_main()

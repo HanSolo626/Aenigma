@@ -142,4 +142,103 @@ class GeneralInfo():
         self.main_image_rect.y = 765
 
         self.screen.blit(self.main_image, self.main_image_rect)
-    
+
+class SaveFile():
+    def __init__(self, ai_game) -> None:
+        self.screen = ai_game.screen
+        self.screen_rect = ai_game.screen.get_rect()
+
+        self.button_color = (255,255,255)
+        self.text_color = (0,0,0)
+        self.font = pygame.font.SysFont("", 25, False, False)
+
+        self.red_color = (255,0,0)
+
+        self.main_rect = pygame.Rect(0, 0, 60, 30)
+        self.main_rect.x = 900
+        self.main_rect.y = 7
+        self.main_name = "Save"
+
+        self.red_rect = pygame.Rect(0,0, 10,10)
+        self.red_rect.x = 970
+        self.red_rect.y = 17
+
+        self.changes_made = False
+
+        self.prep_main(self.main_name)
+
+    def prep_main(self, msg):
+        self.main_image = self.font.render(msg, True, self.text_color, self.button_color)
+        self.main_image_rect = self.main_image.get_rect()
+        self.main_image_rect.center = self.main_rect.center
+
+    def draw_all(self):
+        self.draw_save()
+        if self.changes_made:
+            self.draw_red_dot()
+
+    def draw_dot(self):
+        self.draw_red_dot()
+
+    def draw_save(self):
+        self.screen.fill(self.button_color, self.main_rect)
+        self.screen.blit(self.main_image, self.main_image_rect)
+
+    def draw_red_dot(self):
+        self.screen.fill(self.red_color, self.red_rect)
+
+
+
+class UndoRedo():
+    def __init__(self, ai_game) -> None:
+        self.screen = ai_game.screen
+        self.screen_rect = ai_game.screen.get_rect()
+
+        self.image_library = ImageLibrary()
+
+        self.button_color = (255,255,255)
+        self.text_color = (0,0,0)
+        self.font = pygame.font.SysFont("", 25, False, False)
+
+        self.arrow_right = pygame.image.load(self.image_library.SYSTEM_IMAGES[5])
+        self.arrow_left = pygame.image.load(self.image_library.SYSTEM_IMAGES[5])
+        self.arrow_left = pygame.transform.flip(self.arrow_left, True, False)
+
+        self.undo_name = "Undo"
+        self.redo_name = "Redo"
+
+        self.terrain_history = []
+        self.prop_history = []
+        self.object_history = []
+        self.sound_history = []
+
+        self.prep_undo(self.undo_name)
+        self.prep_redo(self.redo_name)
+
+    def prep_undo(self, name):
+        self.undo_rect = self.arrow_left.get_rect()
+        self.undo_rect.x = 420
+        self.undo_rect.y = 10
+        self.undo_image = self.font.render(name, True, self.text_color)
+        self.undo_image_rect = self.undo_image.get_rect()
+        self.undo_image_rect.x = self.undo_rect.x - 50
+        self.undo_image_rect.y = self.undo_rect.y
+
+    def prep_redo(self, name):
+        self.redo_rect = self.arrow_right.get_rect()
+        self.redo_rect.x = 480
+        self.redo_rect.y = 10
+        self.redo_image = self.font.render(name, True, self.text_color)
+        self.redo_image_rect = self.redo_image.get_rect()
+        self.redo_image_rect.x = self.redo_rect.x + 40
+        self.redo_image_rect.y = self.redo_rect.y
+
+    def draw_undo_redo(self):
+        self.screen.blit(self.arrow_left, self.undo_rect)
+        self.screen.blit(self.undo_image, self.undo_image_rect)
+
+        self.screen.blit(self.arrow_right, self.redo_rect)
+        self.screen.blit(self.redo_image, self.redo_image_rect)
+
+    def add_to_terrain_history(self, history):
+        self.terrain_history.append(dict.copy(history))
