@@ -20,7 +20,6 @@ class MainButton():
         self.main_rect.y = 120
         self.main_name = "Create File"
 
-
         self.prep_main(msg)
 
     def prep_main(self, msg):
@@ -118,7 +117,7 @@ class PickTerrain():
         self.pick_name_image_rect.x = 1025
         self.pick_name_image_rect.y = 350
 
-        self.current_image = 3
+        self.current_image = 0
         self.arrow_right = pygame.image.load(self.image_library.SYSTEM_IMAGES[5])
         self.arrow_left = pygame.image.load(self.image_library.SYSTEM_IMAGES[5])
         self.arrow_left = pygame.transform.flip(self.arrow_left, True, False)
@@ -175,13 +174,36 @@ class PickTerrain():
         self.pick_name_rect = self.pick_name.get_rect()
         self.pick_name_rect.center = self.pick_name_image_rect.center
 
-    
+
     def draw_words(self, image, image_rect):
         self.screen.blit(image, image_rect)
 
     def load_selected_terrain(self):
-        if self.current_image <= 0:
-            self.current_image = self.image_library.PRELOADED_IMAGES.__len__()
-        elif self.current_image >= self.image_library.PRELOADED_IMAGES.__len__()+1:
-            self.current_image = 1
+        #if self.current_image < 0:
+            #self.current_image = self.image_library.PRELOADED_IMAGES.__len__()
+        #    self.current_image = list(dict.keys(self.image_library.PRELOADED_IMAGES))[self.image_library.PRELOADED_IMAGES.__len__()-1]
+        #    print(self.current_image)
+        #elif self.current_image == list(dict.keys(self.image_library.PRELOADED_IMAGES))[self.image_library.PRELOADED_IMAGES.__len__()-1]:
+        #    self.current_image = 0
         return self.image_library.PRELOADED_IMAGES[self.current_image][0]
+    
+    def add_substract_terrain(self, operator):
+        a = self.current_image
+        b = list(dict.keys(self.image_library.PRELOADED_IMAGES))
+        c = b.index(a)
+        if operator == "-":
+            if c == 0:
+                self.current_image = b[b.__len__()-1]
+            else:
+                self.current_image = b[c-1]
+        elif operator == "+":
+            if c == b.__len__()-1:
+                self.current_image = 0
+            else:
+                self.current_image = b[c+1]
+        else:
+            raise ValueError
+            
+        
+        
+        

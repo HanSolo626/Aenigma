@@ -31,8 +31,10 @@ class ImageLibrary():
 
         self.PRELOADED_IMAGES = {}
         self.PRELOADED_IMAGES[0] = [terrain_images[1], terrain_images[1].get_rect()]
+
         for c in range(terrain_images[0].__len__()):
-            self.PRELOADED_IMAGES[c+1] = [terrain_images[0][c-1], terrain_images[0][c-1].get_rect()]
+            self.PRELOADED_IMAGES[self.get_terrain_code(self.folderlist[c])] = [terrain_images[0][c-1], terrain_images[0][c-1].get_rect()]
+
         print(self.PRELOADED_IMAGES)
 
         
@@ -62,12 +64,19 @@ class ImageLibrary():
     def get_terrain_images(self):
         """Returns a list of all 60x60 px. images along with the dark square."""
 
-        folderlist = os.listdir("images/terrain_images")
+        self.folderlist = os.listdir("images/terrain_images")
         c = pygame.image.load("images/terrain_images/dark_square.png")
-        folderlist.remove("dark_square.png")
+        self.folderlist.remove("dark_square.png")
         b = []
-        for v in range(folderlist.__len__()):
-            a = pygame.image.load("images/terrain_images/"+folderlist[v])
+        for v in range(self.folderlist.__len__()):
+            a = pygame.image.load("images/terrain_images/"+self.folderlist[v])
             if a.get_size() == (60, 60):
                 b.append(a)
         return (b, c)
+    
+    def get_terrain_code(self, string_name: str):
+        """Returns an interger code for the string name."""
+        a = 0
+        for g in range(string_name.__len__()):
+            a += ord(string_name[g])
+        return a

@@ -118,6 +118,7 @@ class MapMaker:
         #random stuff
         self.h = False
         self.r = False
+        self.a = 0
 
         self.prep_speed()
         self.prep_default()
@@ -281,9 +282,9 @@ class MapMaker:
             self.draw_create_file_buttons()
             self.set_active_tool("Create")
         if self.pick_terrain.rect_left.collidepoint(mouse_pos) and self.create_file_active == True:
-            self.pick_terrain.current_image -= 1
+            self.pick_terrain.add_substract_terrain("-")
         if self.pick_terrain.rect_right.collidepoint(mouse_pos) and self.create_file_active == True:
-            self.pick_terrain.current_image += 1
+            self.pick_terrain.add_substract_terrain("+")
 
         if self.affirm_file.affirm_rect.collidepoint(mouse_pos) and self.create_file_active:
             self.current_message = self.affirm_file.build_new_map(self.saved_text, 200, self.pick_terrain.current_image)
@@ -298,9 +299,9 @@ class MapMaker:
             self.set_active_tool("Terrain")
 
         if self.pick_terrain.rect_left.collidepoint(mouse_pos) and self.terrain_active == True:
-            self.pick_terrain.current_image -= 1
+            self.pick_terrain.add_substract_terrain("-")
         if self.pick_terrain.rect_right.collidepoint(mouse_pos) and self.terrain_active == True:
-            self.pick_terrain.current_image += 1
+            self.pick_terrain.add_substract_terrain("+")
 
         if self.terrain.rect_left.collidepoint(mouse_pos) and self.terrain_active:
             self.terrain.increase_brush()

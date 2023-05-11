@@ -1,8 +1,9 @@
-ls = [4,5,8]
+ls = {
+    "a":1,
+    "b":2,
+    "c":3
+
+}
 test = 8
 
-if ls[-1] != test:
-    print("test not")
-    ls.append(test)
-else:
-    print("you did that already")
+print(list(dict.keys(ls)))
