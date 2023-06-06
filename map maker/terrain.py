@@ -93,18 +93,34 @@ class Terrain():
 
     def paint_terrain(self, map, x, y, size, type):
         a = size
+        c= 0
+        l = 0
         if x < 0 or y < 0:
             return map
         else:
             if size == 1:
-                map[y+1][x] = type
+                try:
+                    map[y+1][x] = type
+                except IndexError:
+                    pass
             else:
                 for v in range(a):
                     for h in range(a):
                         try:
-                            map[(y+1)-v][x+h] = type
+                            c = map[(y+1)-v]
+                            try:
+                                c[x+h] = type
+                            except IndexError:
+                                pass
                         except KeyError:
-                            map[y+1][x+h] = type
+                            try:
+                                l = map[y+1]
+                                try:
+                                    l[x+h] = type
+                                except IndexError:
+                                    pass
+                            except KeyError:
+                                pass
             return map
         
         

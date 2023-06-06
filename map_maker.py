@@ -1,10 +1,7 @@
-import pygame
-import sys
-import os
+import pygame, sys, os, math
 import pygame.font
 import importlib
 import os.path as path
-import math
 
 #sys.path.append('/Users/carsonball/Desktop/aenigma_game/map maker/game_maps')
 sys.path.append('saves')
@@ -15,6 +12,7 @@ from image_library import ImageLibrary
 from system import QuitProgram
 from system import DragMap
 from system import AjustSize
+from system import PositionDisplay
 from test_button import TestButton
 from open_file import OpenFile
 from create_file import MainButton
@@ -30,7 +28,7 @@ from side_areas import AreaUp
 from side_areas import AreaDown
 from system import GeneralInfo
 from system import SaveFile
-
+from access import AccessControl
 
 class MapMaker:
     def __init__(self):
@@ -56,6 +54,7 @@ class MapMaker:
         self.ajust_size = AjustSize(self)
         self.print = GeneralInfo(self)
         self.save = SaveFile(self)
+        self.position = PositionDisplay(self)
 
         # make folder buttons
         self.test_button = TestButton(self, "Test")
@@ -65,6 +64,7 @@ class MapMaker:
         self.props = Props(self, "Props")
         self.objects = Objects(self, "Objects")
         self.sound = Sound(self, "Sound")
+        self.access = AccessControl(self, "Access")
 
         # create file buttons
         self.affirm_file = AffirmButton(self, "Build File")
@@ -100,12 +100,15 @@ class MapMaker:
         self.text_in_stuff = False
         self.past_mode = "Open"
         self.current_tool = "Open"
+        self.access_map_display_active = False
 
         self.current_message = "Welcome to the Aenigma Map Maker!"
         self.saved_text = 'new'
 
         self.displayed_map = {}
+        self.displayed_access_map = {}
         self.current_size = 60
+        self.access_control_size = 10
         self.move_x = 0
         self.move_y = 0
         self.old_move_x = 0
@@ -124,7 +127,6 @@ class MapMaker:
         self.prep_default()
         self.set_active_tool("Open")
 
-        #pygame.mouse.set_cursor(self.image_library.PRELOADED_IMAGES[5][0])
 
 
 
@@ -176,16 +178,18 @@ class MapMaker:
                     self.camera_y += 1 * self.mouse_drag_multiplyer
                 elif event.key == pygame.K_SPACE and self.terrain_active:
                     self.terrain.paint_terrain(self.map_data.terrain_map, self.player_X / 60, self.player_Y / 60, 1, self.pick_terrain.current_image)
+
                 elif event.key == pygame.K_t:
-                    self.get_minus_zoom_number()
+                    print(self.displayed_access_map)
+
                 elif event.key == pygame.K_s:
                     self.camera_x = 0
                     self.camera_y = 0
 
             if event.type == pygame.MOUSEWHEEL:
-                if event.y > 0:
+                if event.y > 0 and not self.access_active:
                     self.zoom_in()
-                if event.y < 0:
+                if event.y < 0 and not self.access_active:
                     self.zoom_out()
                 
 
@@ -216,13 +220,17 @@ class MapMaker:
                     self.check_object_functions(mouse_pos)
                     self.check_sound_functions(mouse_pos)
                     self.check_prop_functions(mouse_pos)
+                    self.check_access_functions(mouse_pos)
 
 
 
     def new_display_map(self, map, x, y):
+        map = map.terrain_map
+        #print(map[1].__len__())
         ls = []
         self.h = 0
         self.v = 0
+        b = 0
         for v in range(self.get_map_size()):
             self.v += 1
             self.v = int(self.v)
@@ -232,7 +240,11 @@ class MapMaker:
                     ls.append(0)
                 else:
                     try:
-                        ls.append(map[y + self.v - (self.get_half_size() - 1)][x + self.h - self.get_half_size()])
+                        b = map[y + self.v - (self.get_half_size() - 1)]
+                        try:
+                            ls.append(b[x + self.h - self.get_half_size()])
+                        except IndexError:
+                            ls.append(0)
                     except KeyError:
                         ls.append(0)
             self.displayed_map[self.v] = ls
@@ -254,6 +266,48 @@ class MapMaker:
                 numberX += self.current_size
                 row_position +=1
             numberY += self.current_size
+            row_number +=1
+            numberX = 250
+            row_position = 0
+        
+
+    def display_access_map(self, map, x, y):
+        x = (x * 6) + 8
+        y = (y * 6) + 8
+        ls = []
+        self.h = 0
+        self.v = 0
+        for v in range(self.get_map_size_access()):
+            self.v += 1
+            self.v = int(self.v)
+            for h in range(self.get_map_size_access()):
+                self.h += 1
+                if (x + self.h - self.get_half_size_access()) < 0:
+                    ls.append(0)
+                else:
+                    try:
+                        ls.append(map[y + self.v - (self.get_half_size_access() - 1)][x + self.h - self.get_half_size_access()][0])
+                    except KeyError:
+                        ls.append(0)
+            self.displayed_access_map[self.v] = ls.copy()
+            ls = []
+            self.h = 0
+        numberX = 250
+        numberY = 50
+        row_number = 1
+        row_position = 0
+        for y in range(self.get_map_size_access()):
+            for x in range(self.get_map_size_access()):
+                image_number = self.displayed_access_map[row_number][row_position]
+                self.image = self.image_library.ACCESS_IMAGES[image_number][0]
+                self.image = pygame.transform.scale(self.image, (self.access_control_size, self.access_control_size))
+                self.rect = self.image_library.ACCESS_IMAGES[image_number][1]
+                self.rect.x = numberX
+                self.rect.y = numberY
+                self.screen.blit(self.image, self.rect)
+                numberX += self.access_control_size
+                row_position +=1
+            numberY += self.access_control_size
             row_number +=1
             numberX = 250
             row_position = 0
@@ -287,7 +341,7 @@ class MapMaker:
             self.pick_terrain.add_substract_terrain("+")
 
         if self.affirm_file.affirm_rect.collidepoint(mouse_pos) and self.create_file_active:
-            self.current_message = self.affirm_file.build_new_map(self.saved_text, 200, self.pick_terrain.current_image)
+            self.current_message = self.affirm_file.build_new_map(self.saved_text, 200, self.pick_terrain.current_image, 3)
 
         if self.pick_terrain.pick_name_rect.collidepoint(mouse_pos) and self.create_file_active:
             self.set_active_tool("Text")
@@ -323,6 +377,12 @@ class MapMaker:
             self.draw_sound_buttons()
             self.set_active_tool("Sound")
 
+    def check_access_functions(self, mouse_pos):
+        if self.access.main_rect.collidepoint(mouse_pos):
+            self.draw_access_buttons()
+            self.set_active_tool("Access")
+            self.set_mean_zoom()
+
     def check_system_functions(self, mouse_pos):
         if self.quit_program.main_rect.collidepoint(mouse_pos):
             self.quit_program.quit_program()
@@ -336,7 +396,7 @@ class MapMaker:
             self.recorded_lod = True
 
         elif self.save.main_rect.collidepoint(mouse_pos) and self.map_present and self.save.changes_made:
-            self.affirm_file.write_to_file(self.current_file_open, 'w', self.terrain_instance, [], [], [])
+            self.affirm_file.write_to_file(self.current_file_open, 'w', self.terrain_instance, [], [], [], self.access_data_instance, 1, 0)
             self.save.changes_made = False
             
 
@@ -364,29 +424,44 @@ class MapMaker:
         elif self.left_click == True and self.terrain_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
             #print(self.move_x, self.move_y)
             #print(self.get_minus_zoom_number())
-            #print(self.get_mouse_pos(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]))
+            #print(self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]))
             self.terrain_instance = self.terrain.paint_terrain(
                 self.terrain_instance,
-                self.get_mouse_pos(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[0],
-                self.get_mouse_pos(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[1],
+                self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[0],
+                self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[1],
                 self.terrain.brush_size,
                 self.pick_terrain.current_image
                 )
             self.r = True
+
+        elif self.left_click and self.access_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
+            print(self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1]))
+
         elif self.left_click == False and self.terrain_active and self.r:
             self.save.changes_made = True
             self.r = False
 
 
 
-    def get_mouse_pos(self, x, y):
+    def get_mouse_pos_terrain(self, x, y):
         x = x + self.camera_x - math.floor(self.current_size / 2) + math.ceil(self.current_size / 2) + (self.get_minus_zoom_number()) + self.get_minus_zoom_number()
         y = y + self.camera_y - math.floor(self.current_size / 2) + math.ceil(self.current_size / 2) + (self.get_minus_zoom_number()) + self.get_minus_zoom_number()
-        return x , y
+        return x, y
+    
+    def get_mouse_pos_access(self, x, y):
+        x = x + self.camera_x - math.floor(self.access_control_size / 2) + math.ceil(self.access_control_size / 2) + (self.get_minus_zoom_number_access()) + self.get_minus_zoom_number_access()
+        y = y + self.camera_y - math.floor(self.access_control_size / 2) + math.ceil(self.access_control_size / 2) + (self.get_minus_zoom_number_access()) + self.get_minus_zoom_number_access()
+        x = x + (self.camera_x * 5)
+        y = y + (self.camera_y * 5)
+        return x+41, y+41
     
     def get_minus_zoom_number(self):
         a = self.image_library.ZOOM_MOUSE_NUMBERS[int(self.current_size / 5)]
         return a -5
+    
+    def get_minus_zoom_number_access(self):
+        a = self.image_library.ZOOM_MOUSE_NUMBERS[int(self.access_control_size/ 5)]
+        return a - 5
 
 
     def zoom_out(self):
@@ -397,6 +472,9 @@ class MapMaker:
         if not self.current_size == 100:
             self.current_size += 5
 
+    def set_mean_zoom(self):
+        self.current_size = 60
+
     def get_mouse_click_pos(self, pos, size):
         x = pos[0] - 250
         y = pos[1] - 50
@@ -404,11 +482,6 @@ class MapMaker:
         y = math.floor(y / size) - self.get_minus_zoom_number()
         return (x, y)
 
-        # This is something I might work on later.
-        #elif self.drag_area.rect.collidepoint(mouse_pos):
-        #    new_map_pos = self.drag_area.drag_map_by_mouse(mouse_pos, self.mouse_drag_multiplyer)
-        #    print(new_map_pos)
-            #self.player_X, self.player_Y += new_map_pos[0], new_map_pos[1]
 
     def prep_speed(self):
         speed_str = "Speed: "+str(self.mouse_drag_multiplyer)
@@ -425,6 +498,7 @@ class MapMaker:
         self.default_rect.y = 50
 
     def set_neutral(self):
+        """OUTDATED"""
         self.create_file_active = False
         self.terrain_active = False
         self.prop_active = False
@@ -440,6 +514,7 @@ class MapMaker:
         self.object_active = False
         self.sound_active = False
         self.text_active = False
+        self.access_active = False
         if mode == "Past":
             mode = self.past_mode
         self.past_mode = self.current_tool
@@ -457,6 +532,8 @@ class MapMaker:
             self.text_active = True
         elif mode == "Open":
             self.open_file_active = True
+        elif mode == "Access":
+            self.access_active = True
         self.current_tool = mode
 
     def import_map(self, file_name):
@@ -466,15 +543,23 @@ class MapMaker:
             self.map_data = importlib.import_module(file_name)
             self.map_data_instance = importlib.import_module(file_name)
             self.terrain_instance = self.map_data_instance.terrain_map
+            self.access_map_instance = self.access.extract_access_map(self.map_data)
+            self.access_data_instance = self.map_data.access_map
             self.player_X = self.map_data.player_x
             self.player_Y = self.map_data.player_y
             self.save.changes_made = False
 
     def get_map_size(self):
         return round(780 / self.current_size)
+    
+    def get_map_size_access(self):
+        return round(780 / self.access_control_size)
 
     def get_half_size(self):
         return round(self.get_map_size() / 2)
+    
+    def get_half_size_access(self):
+        return round(self.get_map_size_access() / 2)
             
             
 
@@ -489,6 +574,7 @@ class MapMaker:
             self.props.draw_main()
             self.objects.draw_main()
             self.sound.draw_main()
+            self.access.draw_main()
         else:
             self.open_file.draw_main()
             self.create_file.draw_main()
@@ -505,6 +591,8 @@ class MapMaker:
             self.objects.draw_all()
         if self.sound_active == True:
             self.sound.draw_all()
+        if self.access_active:
+            self.access.draw_all()
 
     def draw_system(self):
         self.quit_program.draw_main()
@@ -513,6 +601,7 @@ class MapMaker:
         self.ajust_size.draw_all_zoom()
         self.print.print_m(self.current_message)
         self.save.draw_all()
+        self.position.draw_position((self.camera_x, self.camera_y))
 
 
     def draw_sides(self):
@@ -546,9 +635,16 @@ class MapMaker:
     def draw_sound_buttons(self):
         self.sound.draw_main()
 
+    def draw_access_buttons(self):
+        self.access.draw_all()
+        
     def draw_default(self):
         self.screen.blit(self.default, self.default_rect)
 
+    def draw_world(self, map, x, y):
+        self.new_display_map(map, x, y)
+        if self.access_active:
+            self.display_access_map(self.access_map_instance, x, y)
 
 
     def run_program(self):
@@ -581,7 +677,7 @@ class MapMaker:
                     self.check_events()
                     self.check_mouse()
                     self.prep_speed()
-                    self.new_display_map(self.map_data_instance.terrain_map, self.camera_x, self.camera_y)
+                    self.draw_world(self.map_data_instance, self.camera_x, self.camera_y)
                     self.draw_sides()
                     self.draw_system()
                     self.draw_folders(True)
@@ -602,7 +698,6 @@ class MapMaker:
                     self.check_if_file_open()
                     pygame.display.update()
 
-            
 
 if __name__ == '__main__':
     ai = MapMaker()

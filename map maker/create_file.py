@@ -61,13 +61,13 @@ class AffirmButton():
         self.screen.fill(self.button_color, self.affirm_rect)
         self.screen.blit(self.affirm_image, self.affirm_image_rect)
 
-    def build_new_map(self, new_filename, map_size, floor_type):
+    def build_new_map(self, new_filename, map_size, floor_type, base_access):
         new_map = {}
-        access_map = {}
+        access_map = [[(0,map_size-1),1,map_size,0]]
         nest = []
-        cool = []
         v = map_size
         t = True
+        vision = 0
         if new_filename == '':
             return "Error: Give the file a name."
         elif new_filename+".py" in self.open_file.get_save_files():
@@ -75,20 +75,20 @@ class AffirmButton():
         else:
             for x in range(map_size):
                 nest.append(floor_type)
-                cool.append(True)
             for y in range(map_size):
                 new_map[y+1] = nest
-                access_map[y+1] = cool
 
-            self.write_to_file(new_filename, 'x', new_map, [], [], [])
+            
+            
+            self.write_to_file(new_filename, 'x', new_map, [], [], [], access_map, base_access, vision)
             #with open(new_filename+".py", 'x') as file_object:
             #    file_object.write("terrain_map = "+str(new_map)+"\naccess_map = "+str(access_map)+"\nprop_map = []\nobject_map = []\nsound_map = []\nplayer_x = 1\nplayer_y = 1\nsize_x = "+str(map_size)+"\nsize_y = "+str(map_size))
 
             return "Map created succesfully!"
         
-    def write_to_file(self, filename, mode, terrain, prop, object_, sound):
+    def write_to_file(self, filename, mode, terrain, prop, object_, sound, access, base, base_vision):
         with open(filename+".py", mode) as file_object:
-            file_object.write("terrain_map = "+str(terrain)+"\nprop_map = "+str(prop)+"\nobject_map = "+str(object_)+"\nsound_map = "+str(sound)+"\nplayer_x = 1\nplayer_y = 1\nsize_x = "+str(200)+"\nsize_y = "+str(200))
+            file_object.write("terrain_map = "+str(terrain)+"\nprop_map = "+str(prop)+"\nobject_map = "+str(object_)+"\nsound_map = "+str(sound)+"\nplayer_x = 1\nplayer_y = 1\nsize_x = "+str(200)+"\nsize_y = "+str(200)+"\naccess_map="+str(access)+"\nbase_access="+str(base)+"\nbase_vision="+str(base_vision))
         shutil.move(filename+".py","saves/"+filename+".py")
 
 

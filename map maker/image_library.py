@@ -26,8 +26,21 @@ class ImageLibrary():
             5:"images/system_images/arrow.png",
             6:"images/system_images/default.png",
             7:"images/system_images/marker.png",
-            8:"images/system_images/test_mouse.png"
+            8:"images/system_images/test_mouse.png",
         }
+
+        self.ACCESS_FILEPATHS = {
+            0:"images/system_images/0_i.png",
+            1:"images/system_images/1_i.png",
+            2:"images/system_images/2_i.png",
+            3:"images/system_images/3_i.png"
+        }
+
+        self.ACCESS_IMAGES = {}
+
+        for y in range(self.ACCESS_FILEPATHS.__len__()):
+            self.ACCESS_IMAGES[y] = self.load_image(self.ACCESS_FILEPATHS[y])
+
 
         self.PRELOADED_IMAGES = {}
         self.PRELOADED_IMAGES[0] = [terrain_images[1], terrain_images[1].get_rect()]
@@ -35,7 +48,7 @@ class ImageLibrary():
         for c in range(terrain_images[0].__len__()):
             self.PRELOADED_IMAGES[self.get_terrain_code(self.folderlist[c])] = [terrain_images[0][c-1], terrain_images[0][c-1].get_rect()]
 
-        print(self.PRELOADED_IMAGES)
+        #print(self.PRELOADED_IMAGES)
 
         
 
@@ -80,3 +93,8 @@ class ImageLibrary():
         for g in range(string_name.__len__()):
             a += ord(string_name[g])
         return a
+    
+    def load_image(self, filepath):
+        """Returns [Surface, Surface Rect]"""
+        a = pygame.image.load(filepath)
+        return (a, a.get_rect())

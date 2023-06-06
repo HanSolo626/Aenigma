@@ -123,4 +123,5 @@ class OpenFile:
             except IndexError:
                 file_list = ["Error: Bad Files"]
         return file_list
+    
 

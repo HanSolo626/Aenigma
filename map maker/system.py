@@ -242,3 +242,20 @@ class UndoRedo():
 
     def add_to_terrain_history(self, history):
         self.terrain_history.append(dict.copy(history))
+
+class PositionDisplay():
+    def __init__(self, ai_game) -> None:
+        self.screen = ai_game.screen
+        self.screen_rect = ai_game.screen.get_rect()
+
+        self.text_color = (0,0,0)
+        self.font = pygame.font.SysFont("", 25)
+        self.position_position_x = 400
+        self.position_position_y = 10
+
+    def draw_position(self, pos):
+        a = self.font.render("Position = "+str(pos[0])+", "+str(pos[1]), False, self.text_color)
+        a_rect = a.get_rect()
+        a_rect.x = self.position_position_x
+        a_rect.y = self.position_position_y
+        self.screen.blit(a, a_rect)
