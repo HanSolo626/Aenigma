@@ -1,7 +1,7 @@
 import sys
 
 import pygame
-from settings import Settings
+from old.settings import Settings
 
 
 class Aenigma:

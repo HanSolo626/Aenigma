@@ -286,7 +286,11 @@ class MapMaker:
                     ls.append(0)
                 else:
                     try:
-                        ls.append(map[y + self.v - (self.get_half_size_access() - 1)][x + self.h - self.get_half_size_access()][0])
+                        b = map[y + self.v - (self.get_half_size_access() - 1)]
+                        try:
+                            ls.append(b[x + self.h - self.get_half_size_access()][0])
+                        except IndexError:
+                            ls.append(0)
                     except KeyError:
                         ls.append(0)
             self.displayed_access_map[self.v] = ls.copy()
@@ -383,6 +387,18 @@ class MapMaker:
             self.set_active_tool("Access")
             self.set_mean_zoom()
 
+        if self.access_active and self.access.rect_left.collidepoint(mouse_pos):
+            self.access.alter_access_number(False)
+
+        if self.access_active and self.access.rect_right.collidepoint(mouse_pos):
+            self.access.alter_access_number(True)
+
+        if self.access_active and self.access.size_rect_left.collidepoint(mouse_pos):
+            self.access.increase_brush()
+        
+        if self.access_active and self.access.size_rect_right.collidepoint(mouse_pos):
+            self.access.decrease_brush()
+
     def check_system_functions(self, mouse_pos):
         if self.quit_program.main_rect.collidepoint(mouse_pos):
             self.quit_program.quit_program()
@@ -435,11 +451,27 @@ class MapMaker:
             self.r = True
 
         elif self.left_click and self.access_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
+            self.access_data_instance = self.access.add_access_rect(
+                self.access_data_instance,
+                self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1])[0],
+                self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1])[1],
+                self.access.brush_size,
+                self.access.current_selected_access_number,
+                self.access.v_h
+            )
+            self.r = True
+
             print(self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1]))
 
-        elif self.left_click == False and self.terrain_active and self.r:
-            self.save.changes_made = True
-            self.r = False
+        elif self.left_click == False and self.r:
+            if self.terrain_active:
+                self.save.changes_made = True
+                self.r = False
+            if self.access_active:
+                print("passed")
+                self.access_map_instance = self.access.extract_access_map(self.map_data)
+                self.save.changes_made = True
+                self.r = False
 
 
 
@@ -505,6 +537,7 @@ class MapMaker:
         self.object_active = False
         self.sound_active = False
         self.area_left.draw_main()
+        
 
     def set_active_tool(self, mode):
         self.open_file_active = False
@@ -662,6 +695,7 @@ class MapMaker:
         self.set_active_tool("Sound")
         self.draw_folders(True)
         self.set_active_tool("Open")
+
         while True:
             if self.map_present:
                 # get map data
