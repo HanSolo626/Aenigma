@@ -1,4 +1,4 @@
-import pygame, sys, os, math
+import pygame, sys, math
 import pygame.font
 import importlib
 import os.path as path
@@ -7,37 +7,32 @@ import os.path as path
 sys.path.append('saves')
 sys.path.append('map maker')
 
+from FacillimumLibrary import Facillimum_Library
+
 
 from image_library import ImageLibrary
-from system import QuitProgram
-from system import DragMap
-from system import AjustSize
-from system import PositionDisplay
-from test_button import TestButton
-from open_file import OpenFile
-from create_file import MainButton
-from create_file import AffirmButton
-from create_file import PickTerrain
-from terrain import Terrain
-from props import Props
-from objects import Objects
-from sound import Sound
-from side_areas import AreaLeft
-from side_areas import AreaRight
-from side_areas import AreaUp
-from side_areas import AreaDown
-from system import GeneralInfo
-from system import SaveFile
-from access import AccessControl
+from system import *
+from test_button import *
+from open_file import *
+from create_file import *
+from terrain import *
+from props import *
+from objects import *
+from sound import *
+from side_areas import *
+from access import *
 
 class MapMaker:
     def __init__(self):
         pygame.init()
 
 
-        self.screen = pygame.display.set_mode((1200, 800))
+        self.screen = pygame.display.set_mode((1200, 800), pygame.SCALED | pygame.RESIZABLE)
         #self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
         pygame.display.set_caption("Aenigma Map Maker")
+
+        # get FL
+        self.FL = Facillimum_Library(self.screen)
 
         # get images
         self.image_library = ImageLibrary()
@@ -164,6 +159,11 @@ class MapMaker:
                         self.mouse_drag_multiplyer = 1
                     else:
                         self.mouse_drag_multiplyer += 1
+                elif event.key == pygame.K_z:
+                    if self.mouse_drag_multiplyer == 1:
+                        self.mouse_drag_multiplyer = 1
+                    else:
+                        self.mouse_drag_multiplyer -= 1
                 elif event.key == pygame.K_RIGHT:
                     self.player_X -= 60 * self.mouse_drag_multiplyer
                     self.camera_x += 1 * self.mouse_drag_multiplyer
@@ -179,8 +179,8 @@ class MapMaker:
                 elif event.key == pygame.K_SPACE and self.terrain_active:
                     self.terrain.paint_terrain(self.map_data.terrain_map, self.player_X / 60, self.player_Y / 60, 1, self.pick_terrain.current_image)
 
-                elif event.key == pygame.K_t:
-                    print(self.displayed_access_map)
+                #elif event.key == pygame.K_t:
+                    #print(self.displayed_access_map)
 
                 elif event.key == pygame.K_s:
                     self.camera_x = 0
@@ -309,6 +309,7 @@ class MapMaker:
                 self.rect.x = numberX
                 self.rect.y = numberY
                 self.screen.blit(self.image, self.rect)
+                #self.FL.draw_words(str(self.access.v_h))
                 numberX += self.access_control_size
                 row_position +=1
             numberY += self.access_control_size
@@ -399,6 +400,12 @@ class MapMaker:
         if self.access_active and self.access.size_rect_right.collidepoint(mouse_pos):
             self.access.decrease_brush()
 
+        if self.access_active and self.access.v_h_rect_right.collidepoint(mouse_pos):
+            self.access.decrease_v_h()
+        if self.access_active and self.access.v_h_rect_left.collidepoint(mouse_pos):
+            self.access.increase_v_h()
+
+
     def check_system_functions(self, mouse_pos):
         if self.quit_program.main_rect.collidepoint(mouse_pos):
             self.quit_program.quit_program()
@@ -406,7 +413,7 @@ class MapMaker:
             self.zoom_out()
         elif self.ajust_size.zoom_in_rect.collidepoint(mouse_pos) and self.map_present:
             self.zoom_in()
-            print(self.current_file_open)
+            #print(self.current_file_open)
 
         elif self.drag_area.rect.collidepoint(mouse_pos):
             self.recorded_lod = True
@@ -459,16 +466,17 @@ class MapMaker:
                 self.access.current_selected_access_number,
                 self.access.v_h
             )
+            self.access_map_instance = self.access.extract_access_map(self.map_data)
             self.r = True
 
-            print(self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1]))
+            #print(self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1]))
 
         elif self.left_click == False and self.r:
             if self.terrain_active:
                 self.save.changes_made = True
                 self.r = False
             if self.access_active:
-                print("passed")
+                #print("passed")
                 self.access_map_instance = self.access.extract_access_map(self.map_data)
                 self.save.changes_made = True
                 self.r = False

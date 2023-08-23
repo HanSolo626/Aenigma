@@ -30,10 +30,16 @@ class AccessControl():
         self.size_rect.y = 450
         self.size_name = "Brush Size"
 
+        self.v_h_rect = pygame.Rect(0,0, 75, 50)
+        self.v_h_rect.x = 1035
+        self.v_h_rect.y = 570
+        self.v_h_name = "V_H"
+
         self.current_selected_access_number = 1
         self.current_access_image = self.load_access_tile()
         self.brush_size = 1
         self.v_h = 0
+        self.current_displayed_v_h = 0
 
         self.access_type_list = {
             0:"None",
@@ -44,6 +50,7 @@ class AccessControl():
 
         self.prep_main(msg)
         self.prep_size()
+        self.prep_v_h()
 
     def prep_main(self, msg):
         self.main_image = self.font.render(msg, True, self.text_color, self.button_color)
@@ -55,6 +62,11 @@ class AccessControl():
         self.size_image_rect = self.size_image.get_rect()
         self.size_image_rect.center = self.size_rect.center
 
+    def prep_v_h(self):
+        self.v_h_image = self.font.render(self.v_h_name, True, self.text_color, self.button_color)
+        self.v_h_image_rect = self.v_h_image.get_rect()
+        self.v_h_image_rect.center = self.v_h_rect.center
+
     def draw_main(self):
         self.screen.fill(self.button_color, self.main_rect)
         self.screen.blit(self.main_image, self.main_image_rect)
@@ -62,6 +74,10 @@ class AccessControl():
     def draw_size(self):
         self.screen.fill(self.button_color, self.size_rect)
         self.screen.blit(self.size_image, self.size_image_rect)
+    
+    def draw_v_h(self):
+        self.screen.fill(self.button_color, self.v_h_rect)
+        self.screen.blit(self.v_h_image, self.v_h_image_rect)
 
     def prep_words(self, words):
         self.words_image = self.big_font.render(str(words), True, self.text_color)
@@ -88,10 +104,19 @@ class AccessControl():
         self.size_rect_left.x = 1095
         self.size_rect_left.y = 500
 
+        self.v_h_rect_right = right.get_rect()
+        self.v_h_rect_right.x = 1015
+        self.v_h_rect_right.y = 650
+        self.v_h_rect_left = left.get_rect()
+        self.v_h_rect_left.x = 1095
+        self.v_h_rect_left.y = 650
+
         self.screen.blit(right, self.rect_right)
         self.screen.blit(left, self.rect_left)
         self.screen.blit(right, self.size_rect_right)
         self.screen.blit(left, self.size_rect_left)
+        self.screen.blit(right, self.v_h_rect_right)
+        self.screen.blit(left, self.v_h_rect_left)
 
     def alter_access_number(self, go_up):
         if go_up:
@@ -112,10 +137,12 @@ class AccessControl():
     def draw_all(self):
         self.draw_main()
         self.draw_size()
+        self.draw_v_h()
         self.draw_current_access()
         self.draw_selection_buttons(self.arrow_left, self.arrow_right)
         self.draw_words(self.brush_size)
         self.FL.draw_words(self.access_type_list[self.current_selected_access_number], 30, (1040, 150), False, "black")
+        self.FL.draw_words(str(self.v_h), 40, (1065, 650), False, "black")
 
     def load_access_tile(self):
         return pygame.transform.scale(self.image_library.ACCESS_IMAGES[self.current_selected_access_number][0], (60, 60))
@@ -135,16 +162,22 @@ class AccessControl():
         if not self.brush_size == 1:
             self.brush_size -= 1
 
+    def increase_v_h(self):
+        self.v_h += 1
+
+    def decrease_v_h(self):
+        if not self.v_h == 0:
+            self.v_h -= 1
 
     def add_access_rect(self, map, x, y, size, type, v_h):
-        a = [(x*6, y*6), type, size, v_h]
+        a = [(x, y), type, size, v_h]
         b = True
         for rect in map:
             if a == rect:
-                print("denied")
+                #print("denied")
                 b = False
         if b:
-            print("accepted")
+            #print("accepted")
             map.append(a)
 
         return map
