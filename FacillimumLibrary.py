@@ -1,6 +1,6 @@
 # This python library was written by Carson J. Ball
 
-import pygame
+import pygame, multiprocessing
 
 class Facillimum_Library():
     """A library of python functions that make it easier to make stuff with pygame."""
@@ -23,6 +23,8 @@ class Facillimum_Library():
             "purple":(255,0,255),
             "cyan":(0,255,255)
         }
+
+        self.rendered_words = {}
 
 
     def draw_image(
@@ -52,7 +54,13 @@ class Facillimum_Library():
         except FileNotFoundError:
             raise FileNotFoundError("File was not found!")
         
+
+    def prep_color_zero(self):
+        """IGNORE THIS"""
+        font = pygame.font.SysFont("", 15)
+        self.zero_image = font.render("0", True, (0,0,0))
         
+    
     def draw_words(self,
             words: str,
             size: int,
@@ -71,12 +79,46 @@ class Facillimum_Library():
         else:
             raise ValueError("Fourth argument must be a string or a tuple: (int, int, int).")
         
-        font = pygame.font.SysFont("", size)
         try:
-            image = font.render(words, True, color)
+            if (words+str(size)) in self.rendered_words:
+                image = self.rendered_words[(words+str(size))]
+            else:
+                font = pygame.font.SysFont("", size)
+                self.rendered_words[(words+str(size))] = font.render(words, True, color)
+                image = self.rendered_words[(words+str(size))]
+
             if shadow:
-                shadow = font.render(words, True, (0,0,0))
-                self.draw_image(shadow, (coordinates[0]+3, coordinates[1]+3))
+                shadow = font.render(words, True, (0,0,0)) # type: ignore
+                self.draw_image(shadow, (coordinates[0]+3, coordinates[1]+3)) # type: ignore
+        except ValueError:
+            raise ValueError("You can only pass in a tuple that has at least three intergers and that none of them are negative or are above 255.")
+        self.draw_image(image, coordinates)
+
+    def draw_words_access_zero(self,
+            words: str,
+            size: int,
+            coordinates: tuple,
+            shadow: bool,
+            color
+            ):
+        
+        if type(color) == str:
+            try:
+                color = self.color_list[color]
+            except KeyError:
+                raise ValueError("'"+color+"' not found in color list.\nColor List:\n"+str(self.color_list.keys()))
+        elif type(color) == tuple:
+            pass
+        else:
+            raise ValueError("Fourth argument must be a string or a tuple: (int, int, int).")
+        
+        #font = pygame.font.SysFont("", size)
+        try:
+            #image = font.render(words, True, color)
+            image = self.zero_image
+            if shadow:
+                shadow = font.render(words, True, (0,0,0)) # type: ignore
+                self.draw_image(shadow, (coordinates[0]+3, coordinates[1]+3)) # type: ignore
         except ValueError:
             raise ValueError("You can only pass in a tuple that has at least three intergers and that none of them are negative or are above 255.")
         self.draw_image(image, coordinates)
@@ -188,6 +230,6 @@ class Facillimum_Library():
         """This function will update the screen with the latest graphics and add a delay in miliseconds if any is given."""
         pygame.display.flip()
         try:
-            pygame.time.delay(time)
+            pygame.time.delay(time) # type: ignore
         except TypeError:
             pass

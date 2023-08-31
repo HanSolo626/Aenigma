@@ -1,4 +1,4 @@
-import pygame, sys, math
+import pygame, sys, math, time
 import pygame.font
 import importlib
 import os.path as path
@@ -161,7 +161,7 @@ class MapMaker:
                         self.mouse_drag_multiplyer += 1
                 elif event.key == pygame.K_z:
                     if self.mouse_drag_multiplyer == 1:
-                        self.mouse_drag_multiplyer = 1
+                        self.mouse_drag_multiplyer = 8
                     else:
                         self.mouse_drag_multiplyer -= 1
                 elif event.key == pygame.K_RIGHT:
@@ -283,16 +283,16 @@ class MapMaker:
             for h in range(self.get_map_size_access()):
                 self.h += 1
                 if (x + self.h - self.get_half_size_access()) < 0:
-                    ls.append(0)
+                    ls.append([0,0])
                 else:
                     try:
                         b = map[y + self.v - (self.get_half_size_access() - 1)]
                         try:
-                            ls.append(b[x + self.h - self.get_half_size_access()][0])
+                            ls.append(b[x + self.h - self.get_half_size_access()])
                         except IndexError:
-                            ls.append(0)
+                            ls.append([0,0])
                     except KeyError:
-                        ls.append(0)
+                        ls.append([0,0])
             self.displayed_access_map[self.v] = ls.copy()
             ls = []
             self.h = 0
@@ -302,20 +302,26 @@ class MapMaker:
         row_position = 0
         for y in range(self.get_map_size_access()):
             for x in range(self.get_map_size_access()):
-                image_number = self.displayed_access_map[row_number][row_position]
+                image_number = self.displayed_access_map[row_number][row_position][0]
+                v_h_number = self.displayed_access_map[row_number][row_position][1]
                 self.image = self.image_library.ACCESS_IMAGES[image_number][0]
                 self.image = pygame.transform.scale(self.image, (self.access_control_size, self.access_control_size))
                 self.rect = self.image_library.ACCESS_IMAGES[image_number][1]
                 self.rect.x = numberX
                 self.rect.y = numberY
                 self.screen.blit(self.image, self.rect)
-                #self.FL.draw_words(str(self.access.v_h))
+
+                if image_number != 0:
+                    self.FL.draw_words(str(v_h_number), 15, (numberX, numberY), False, "black")
+
+
                 numberX += self.access_control_size
                 row_position +=1
             numberY += self.access_control_size
             row_number +=1
             numberX = 250
             row_position = 0
+
 
     def check_open_file_functions(self, mouse_pos):
         if self.open_file.main_rect.collidepoint(mouse_pos):
@@ -387,6 +393,7 @@ class MapMaker:
             self.draw_access_buttons()
             self.set_active_tool("Access")
             self.set_mean_zoom()
+            self.FL.prep_color_zero()
 
         if self.access_active and self.access.rect_left.collidepoint(mouse_pos):
             self.access.alter_access_number(False)
@@ -409,9 +416,9 @@ class MapMaker:
     def check_system_functions(self, mouse_pos):
         if self.quit_program.main_rect.collidepoint(mouse_pos):
             self.quit_program.quit_program()
-        elif self.ajust_size.zoom_out_rect.collidepoint(mouse_pos) and self.map_present:
+        elif self.ajust_size.zoom_out_rect.collidepoint(mouse_pos) and self.map_present and not self.access_active:
             self.zoom_out()
-        elif self.ajust_size.zoom_in_rect.collidepoint(mouse_pos) and self.map_present:
+        elif self.ajust_size.zoom_in_rect.collidepoint(mouse_pos) and self.map_present and not self.access_active:
             self.zoom_in()
             #print(self.current_file_open)
 
@@ -477,7 +484,6 @@ class MapMaker:
                 self.r = False
             if self.access_active:
                 #print("passed")
-                self.access_map_instance = self.access.extract_access_map(self.map_data)
                 self.save.changes_made = True
                 self.r = False
 
@@ -642,7 +648,17 @@ class MapMaker:
         self.ajust_size.draw_all_zoom()
         self.print.print_m(self.current_message)
         self.save.draw_all()
-        self.position.draw_position((self.camera_x, self.camera_y))
+        if self.access_active:
+            self.position.draw_position(
+                (self.camera_x, self.camera_y), 
+                self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1])
+                                        )
+        else:
+            self.position.draw_position(
+                (self.camera_x, self.camera_y), 
+                self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])
+                                        )
+
 
 
     def draw_sides(self):
@@ -705,6 +721,7 @@ class MapMaker:
         self.set_active_tool("Open")
 
         while True:
+            #start_time = time.time()
             if self.map_present:
                 # get map data
                 self.import_map(self.current_file_open)
@@ -726,6 +743,9 @@ class MapMaker:
                     self.open_file.update_file_list()
                     self.check_if_file_open()
                     pygame.display.update()
+                    #duration = time.time() - start_time
+                    #print(duration)
+                    #start_time = time.time()
             else:
                 while not self.map_present:
                     self.screen.fill((0,0,0))

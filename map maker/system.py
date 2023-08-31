@@ -252,10 +252,17 @@ class PositionDisplay():
         self.font = pygame.font.SysFont("", 25)
         self.position_position_x = 400
         self.position_position_y = 10
+        self.mouse_position_x = 400
+        self.mouse_position_y = 30
 
-    def draw_position(self, pos):
+    def draw_position(self, pos, mouse):
         a = self.font.render("Position = "+str(pos[0])+", "+str(pos[1]), False, self.text_color)
+        b = self.font.render("Mouse = "+str(mouse[0])+", "+str(mouse[1]), False, self.text_color)
         a_rect = a.get_rect()
+        b_rect = b.get_rect()
         a_rect.x = self.position_position_x
         a_rect.y = self.position_position_y
+        b_rect.x = self.mouse_position_x
+        b_rect.y = self.mouse_position_y
         self.screen.blit(a, a_rect)
+        self.screen.blit(b, b_rect)

@@ -1,4 +1,4 @@
-import pygame
+import pygame, multiprocessing
 from image_library import ImageLibrary
 from FacillimumLibrary import Facillimum_Library
 
@@ -162,7 +162,7 @@ class AccessControl():
         if not self.brush_size == 1:
             self.brush_size -= 1
 
-    def increase_v_h(self):
+    def increase_v_h(self):    
         self.v_h += 1
 
     def decrease_v_h(self):
@@ -184,8 +184,13 @@ class AccessControl():
 
 
 
+    #def extract_access_map(self, map):
+    #    """Returns a GIANT dictionary that represents the access map."""
+    #    with multiprocessing.Pool() as pool:
+    #        pool.starmap(self.extract_access_map, map)
+    
     def extract_access_map(self, map):
-        """Returns a GIANT dictionary that represents the access map."""
+        """Returns a GIANT dictionary that represents the access map with multiprocessing."""
         a = []
         b = {}
         size = map.size_x
@@ -200,7 +205,7 @@ class AccessControl():
         for y in range(size*6):
             b[y+1] = a.copy()
 
-        for d in range(access.__len__()-1):
+        for d in range(access.__len__()):
             b = self.paint_rect(b, access[d])
 
         return b
