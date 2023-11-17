@@ -1,7 +1,4 @@
-
-import sys
-import pygame
-import os
+import sys, pygame, os
 
 sys.path.append('aenigma_game/images')
 
@@ -27,6 +24,7 @@ class ImageLibrary():
             6:"images/system_images/default.png",
             7:"images/system_images/marker.png",
             8:"images/system_images/test_mouse.png",
+            9:"images/system_images/aenigma_logo.png"
         }
 
         self.ACCESS_FILEPATHS = {
@@ -36,13 +34,42 @@ class ImageLibrary():
             3:"images/system_images/3_i.png"
         }
 
-        self.ACCESS_IMAGES = {}
+        self.PROP_FILEPATHS = {
+            0:"images/prop_images/zero.png",
+            1:"images/prop_images/yellowstar.png",
+            2:"images/prop_images/logout.png",
+        }
 
+        self.SHADOW_FILEPATHS = {
+            0:"images/shadows/smallunitshadow.png"
+        }
+
+        self.ACCESS_IMAGES = {}
+        self.PROP_IMAGES = {}
+        self.PROP_PORTRAITS = {}
+        self.SHADOW_IMAGES = {}
+        self.PRELOADED_IMAGES = {}
+
+        # load access images
         for y in range(self.ACCESS_FILEPATHS.__len__()):
             self.ACCESS_IMAGES[y] = self.load_image(self.ACCESS_FILEPATHS[y])
 
+        # load prop images
+        for y in range(self.PROP_FILEPATHS.__len__()):
+            self.PROP_IMAGES[y] = self.load_prop_image(self.PROP_FILEPATHS[y])
 
-        self.PRELOADED_IMAGES = {}
+        # load prop portraits
+        for image in self.PROP_IMAGES:
+            g = pygame.transform.scale(self.PROP_IMAGES[image][0], (100,100))
+            gr = g.get_rect()
+            gr.x = 1025
+            gr.y = 250
+            self.PROP_PORTRAITS[image] = [g, gr]
+
+        # load shadow images
+        for y in range(self.SHADOW_FILEPATHS.__len__()):
+            self.SHADOW_IMAGES[y] = self.load_image(self.SHADOW_FILEPATHS[y])
+
         self.PRELOADED_IMAGES[0] = [terrain_images[1], terrain_images[1].get_rect()]
 
         for c in range(terrain_images[0].__len__()):
@@ -74,6 +101,7 @@ class ImageLibrary():
             2:-33
         }
 
+
     def get_terrain_images(self):
         """Returns a list of all 60x60 px. images along with the dark square."""
 
@@ -87,6 +115,7 @@ class ImageLibrary():
                 b.append(a)
         return (b, c)
     
+
     def get_terrain_code(self, string_name: str):
         """Returns an interger code for the string name."""
         a = 0
@@ -94,7 +123,16 @@ class ImageLibrary():
             a += ord(string_name[g])
         return a
     
+
     def load_image(self, filepath):
         """Returns [Surface, Surface Rect]"""
         a = pygame.image.load(filepath)
         return (a, a.get_rect())
+    
+    def load_prop_image(self, filepath):
+        a = self.load_image(filepath)
+        w = pygame.Surface.get_width(a[0])
+        h = pygame.Surface.get_height(a[0])
+        a[1].x -= int((w / 2))
+        a[1].y -= h
+        return a

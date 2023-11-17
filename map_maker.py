@@ -65,6 +65,9 @@ class MapMaker:
         self.affirm_file = AffirmButton(self, "Build File")
         self.pick_terrain = PickTerrain(self, "Pick Terrain")
 
+        # set icon
+        pygame.display.set_icon(self.image_library.load_image(self.image_library.SYSTEM_IMAGES[9])[0])
+
 
         self.PYGAME_IMAGES = self.image_library.PYGAME_IMAGES
 
@@ -121,6 +124,7 @@ class MapMaker:
         self.prep_speed()
         self.prep_default()
         self.set_active_tool("Open")
+
 
 
 
@@ -363,9 +367,9 @@ class MapMaker:
             self.draw_terrain_buttons()
             self.set_active_tool("Terrain")
 
-        if self.pick_terrain.rect_left.collidepoint(mouse_pos) and self.terrain_active == True:
+        if self.pick_terrain.rect_left.collidepoint(mouse_pos) and self.terrain_active:
             self.pick_terrain.add_substract_terrain("-")
-        if self.pick_terrain.rect_right.collidepoint(mouse_pos) and self.terrain_active == True:
+        if self.pick_terrain.rect_right.collidepoint(mouse_pos) and self.terrain_active:
             self.pick_terrain.add_substract_terrain("+")
 
         if self.terrain.rect_left.collidepoint(mouse_pos) and self.terrain_active:
@@ -377,6 +381,17 @@ class MapMaker:
         if self.props.main_rect.collidepoint(mouse_pos):
             self.draw_prop_buttons()
             self.set_active_tool("Prop")
+
+        if self.props.rect_left_key.collidepoint(mouse_pos) and self.prop_active:
+            self.props.category_up()
+        if self.props.rect_right_key.collidepoint(mouse_pos) and self.prop_active:
+            self.props.category_down()
+
+        if self.props.rect_left_prop.collidepoint(mouse_pos) and self.prop_active:
+            self.props.prop_up()
+        if self.props.rect_right_prop.collidepoint(mouse_pos) and self.prop_active:
+            self.props.prop_down()
+
 
     def check_object_functions(self, mouse_pos):
         if self.objects.main_rect.collidepoint(mouse_pos):
@@ -705,6 +720,7 @@ class MapMaker:
 
 
     def run_program(self):
+
         # initalize everything
         self.draw_system()
         self.draw_folders(True)

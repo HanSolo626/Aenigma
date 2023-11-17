@@ -52,8 +52,6 @@ class Terrain():
         self.words_image_rect.x = 1060
         self.words_image_rect.y = 400
         
-        
-
     def draw_main(self):
         self.screen.fill(self.button_color, self.main_rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)

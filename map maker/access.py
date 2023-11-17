@@ -190,7 +190,7 @@ class AccessControl():
     #        pool.starmap(self.extract_access_map, map)
     
     def extract_access_map(self, map):
-        """Returns a GIANT dictionary that represents the access map with multiprocessing."""
+        """Returns a GIANT dictionary that represents the access map."""
         a = []
         b = {}
         size = map.size_x

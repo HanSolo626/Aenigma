@@ -1,6 +1,5 @@
 import pygame.font
 import pygame
-import sys
 
 class Objects():
     def __init__(self, ai_game, msg) -> None:

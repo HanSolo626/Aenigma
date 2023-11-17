@@ -250,9 +250,9 @@ class PositionDisplay():
 
         self.text_color = (0,0,0)
         self.font = pygame.font.SysFont("", 25)
-        self.position_position_x = 400
+        self.position_position_x = 370
         self.position_position_y = 10
-        self.mouse_position_x = 400
+        self.mouse_position_x = 370
         self.mouse_position_y = 30
 
     def draw_position(self, pos, mouse):
