@@ -136,3 +136,9 @@ class ImageLibrary():
         a[1].x -= int((w / 2))
         a[1].y -= h
         return a
+    
+    def get_zoom_difference(self, image: pygame.Surface):
+        """Return the size of the image divided by 20. This is the zoom difference."""
+        a = image.get_size()[0] / 20
+        b = image.get_size()[1] / 20
+        return (a, b)

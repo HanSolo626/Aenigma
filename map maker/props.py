@@ -1,5 +1,5 @@
 import pygame.font
-import pygame
+import pygame, math
 from image_library import ImageLibrary
 from FacillimumLibrary import Facillimum_Library
 
@@ -58,6 +58,7 @@ class Props():
         m = {}
         for number in props:
             c = props[number]
+            # number:["name", "type", img, shadow, portrait, effect access?, number, zoom: tuple, zoom_sh: tuple, dimensions: tuple]
             m[number] = [
                 c[0],
                 c[1],
@@ -65,9 +66,14 @@ class Props():
                 self.image_library.SHADOW_IMAGES[c[3]],
                 self.image_library.PROP_PORTRAITS[c[2]],
                 c[4],
-                c[5]
+                c[5],
+                self.image_library.get_zoom_difference(self.image_library.PROP_IMAGES[c[2]][0]), # 7
+                self.image_library.get_zoom_difference(self.image_library.PROP_IMAGES[c[3]][0]), # 8 shadow
+                self.get_prop_dimensions(self.image_library.PROP_IMAGES[c[2]][0]), # 9
             ]
+            
         self.prop_list = m
+        self.PROP_LIST = m
 
 
         # Find keys
@@ -90,7 +96,6 @@ class Props():
         self.current_displayed_prop = 17
         self.length = self.get_prop_list_length(self.categories[self.current_category])
 
-        print(self.categories)
 
 
     def category_up(self):
@@ -134,10 +139,6 @@ class Props():
             self.current_displayed_prop = self.categories[self.current_category][a[self.length]][6]
 
 
-        print("Length")
-        print(self.length)
-        print(a)
-
         
     def prop_down(self):
         a = self.get_prop_keys()
@@ -149,11 +150,50 @@ class Props():
             self.length -= 1
             self.current_displayed_prop = self.categories[self.current_category][a[self.length]][6]
 
-        print("Length")
-        print(self.length)
-        print(a)
 
-    
+    def get_props(self, prop_list, coordinates, get_map_size):
+        good_props = []
+        if get_map_size % 2:
+            pass
+        else:
+            get_map_size += 1
+        get_map_size /= 2
+
+        for prop in prop_list:
+            a = prop[0] 
+            for n in range(a.__len__()):
+                t = a[n]
+                one = abs(t[0] - coordinates[0])
+                two = abs(t[1] - coordinates[1])
+                if one <= get_map_size and two <= get_map_size:
+                    good_props.append(prop)
+                    break
+
+        return good_props
+
+
+    def get_prop_coordinates(self, prop_list: list):
+        k = []
+        for prop in prop_list:
+            a = prop[0]
+            b = prop[1]
+            c = []
+            dimensions = self.prop_list[b][9]
+            for y in range(dimensions[1]):
+                for x in range(dimensions[0]):
+                    c.append((a[0] + x, a[1] - y))
+            k.append([c, b])
+        return k
+        
+        
+
+
+
+    def get_prop_dimensions(self, image: pygame.Surface):
+        a = image.get_size()
+        b = math.ceil(a[0] / 60)
+        c = math.ceil(a[1] / 60)
+        return (b, c)
 
 
     def get_prop_list_length(self, list: list):

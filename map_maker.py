@@ -105,7 +105,7 @@ class MapMaker:
 
         self.displayed_map = {}
         self.displayed_access_map = {}
-        self.current_size = 60
+        self.current_size = 30
         self.access_control_size = 10
         self.move_x = 0
         self.move_y = 0
@@ -273,6 +273,80 @@ class MapMaker:
             row_number +=1
             numberX = 250
             row_position = 0
+
+
+
+
+
+
+    def display_props(self, prop_map, x, y):
+        ls = self.props.get_props(prop_map, (x, y), self.get_map_size())
+        get_map_size = self.get_map_size()
+        j = self.get_map_size()
+        if get_map_size % 2:
+            pass
+        else:
+            get_map_size += 1
+        get_map_size /= 2
+        if j == 11 or j == 31 or j == 39:
+            get_map_size += 1
+        
+        get_map_size -= 1.5
+        get_map_size *= self.current_size
+        for prop in ls:
+            num = prop[1]
+            coor = prop[0][0]
+            img = self.props.PROP_LIST[num][2]
+            scale_ratio = self.props.PROP_LIST[num][7]
+            img_sur = img[0]
+            img_sur = pygame.transform.scale(img[0], (scale_ratio[0] * self.current_size, scale_ratio[1] * self.current_size))
+            xv = ((coor[0] - x) * self.current_size + get_map_size)
+            yv = ((coor[1] - y) * self.current_size + get_map_size)
+            #xx = ((coor[0] * self.current_size) + 250) + xv
+            xx = ((coor[0]) + 250) + xv
+            #yy = ((coor[1] * self.current_size) + 50) + yv
+            yy = ((coor[1]) + 50) + yv
+            
+            img[1].x = xx  #- (get_map_size)
+            img[1].y = yy  #- (get_map_size)
+            self.screen.blit(img_sur, img[1])
+
+
+
+
+    def display_shadows(self, prop_map, object_map, x, y):
+        prop_ls = self.props.get_props(prop_map, (x, y), self.get_map_size())
+        get_map_size = self.get_map_size()
+        j = self.get_map_size()
+        if get_map_size % 2:
+            pass
+        else:
+            get_map_size += 1
+        get_map_size /= 2
+        if j == 11 or j == 31 or j == 39:
+            get_map_size += 1
+        get_map_size -= 1.5
+        get_map_size *= self.current_size
+        for prop in prop_ls:
+            num = prop[1]
+            coor = prop[0][0]
+            img = self.props.PROP_LIST[num][3]
+            scale_ratio = self.props.PROP_LIST[num][8]
+            img_sur = img[0]
+            img_sur = pygame.transform.scale(img_sur, (scale_ratio[0] * self.current_size, scale_ratio[1] * self.current_size))
+            xv = ((coor[0] - x) * self.current_size + get_map_size)
+            yv = ((coor[1] - y) * self.current_size + get_map_size)
+            #xx = ((coor[0] * self.current_size) + 250) + xv
+            xx = ((coor[0]) + 250) + xv
+            #yy = ((coor[1] * self.current_size) + 50) + yv
+            yy = ((coor[1]) + 50) + yv
+            img[1].x = xx
+            img[1].y = yy
+            self.screen.blit(img_sur, img[1])
+
+
+
+
         
 
     def display_access_map(self, map, x, y):
@@ -441,7 +515,7 @@ class MapMaker:
             self.recorded_lod = True
 
         elif self.save.main_rect.collidepoint(mouse_pos) and self.map_present and self.save.changes_made:
-            self.affirm_file.write_to_file(self.current_file_open, 'w', self.terrain_instance, [], [], [], self.access_data_instance, 1, 0)
+            self.affirm_file.write_to_file(self.current_file_open, 'w', self.terrain_instance, self.prop_map, [], [], self.access_data_instance, 1, 0)
             self.save.changes_made = False
             
 
@@ -605,6 +679,9 @@ class MapMaker:
             self.map_data = importlib.import_module(file_name)
             self.map_data_instance = importlib.import_module(file_name)
             self.terrain_instance = self.map_data_instance.terrain_map
+            self.prop_map = self.map_data_instance.prop_map
+            self.prop_instance = self.props.get_prop_coordinates(self.map_data_instance.prop_map)
+            self.object_instance = self.map_data_instance.object_map
             self.access_map_instance = self.access.extract_access_map(self.map_data)
             self.access_data_instance = self.map_data.access_map
             self.player_X = self.map_data.player_x
@@ -715,6 +792,8 @@ class MapMaker:
 
     def draw_world(self, map, x, y):
         self.new_display_map(map, x, y)
+        self.display_shadows(self.prop_instance, self.object_instance, x, y)
+        self.display_props(self.prop_instance, x, y)
         if self.access_active:
             self.display_access_map(self.access_map_instance, x, y)
 
@@ -746,6 +825,8 @@ class MapMaker:
                 #self.zoom_out_map = self.build_zoom_out_map(self.map_data.terrain_map, self.map_data.size_x, self.map_data.size_y)
                 #self.current_map = self.terrain_map
 
+
+
                 while self.map_present:
                     self.screen.fill((0,0,0))
                     # refresh screen
@@ -758,6 +839,7 @@ class MapMaker:
                     self.draw_folders(True)
                     self.open_file.update_file_list()
                     self.check_if_file_open()
+                    #print(self.get_map_size())
                     pygame.display.update()
                     #duration = time.time() - start_time
                     #print(duration)
