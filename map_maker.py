@@ -334,14 +334,14 @@ class MapMaker:
             scale_ratio = self.props.PROP_LIST[num][8]
             img_sur = img[0]
             img_sur = pygame.transform.scale(img_sur, (scale_ratio[0] * self.current_size, scale_ratio[1] * self.current_size))
-            xv = ((coor[0] - x) * self.current_size + get_map_size)
-            yv = ((coor[1] - y) * self.current_size + get_map_size)
+            xv = ((coor[0] - x) * self.current_size + get_map_size) + (self.props.PROP_LIST[num][10][0] / self.get_map_size())
+            yv = ((coor[1] - y) * self.current_size + get_map_size) + (self.props.PROP_LIST[num][10][1] / self.get_map_size())
             #xx = ((coor[0] * self.current_size) + 250) + xv
             xx = ((coor[0]) + 250) + xv
             #yy = ((coor[1] * self.current_size) + 50) + yv
             yy = ((coor[1]) + 50) + yv
-            img[1].x = xx
-            img[1].y = yy
+            img[1].x = xx 
+            img[1].y = yy 
             self.screen.blit(img_sur, img[1])
 
 

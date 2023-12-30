@@ -39,10 +39,10 @@ class Props():
         
 
         self.prop_list = {
-        # number:["name", "type", img num, shadow num, effect access?, number]
-            0:["Zero", "Test", 0, 0, False, 0],
-            17:["Star", "Test", 1, 0, True, 17],
-            4:["Logout", "Test", 2, 0, False, 4]
+        # number:["name", "type", img num, shadow num, effect access?, number, shadow offset]
+            0:["Zero", "Test", 0, 0, False, 0, (5, 0)],
+            17:["Star", "Test", 1, 0, True, 17, (300, 2300)],
+            4:["Logout", "Test", 2, 0, False, 4, (0, 0)]
         }
 
 
@@ -70,6 +70,7 @@ class Props():
                 self.image_library.get_zoom_difference(self.image_library.PROP_IMAGES[c[2]][0]), # 7
                 self.image_library.get_zoom_difference(self.image_library.PROP_IMAGES[c[3]][0]), # 8 shadow
                 self.get_prop_dimensions(self.image_library.PROP_IMAGES[c[2]][0]), # 9
+                c[6], # 10
             ]
             
         self.prop_list = m
@@ -158,7 +159,9 @@ class Props():
         else:
             get_map_size += 1
         get_map_size /= 2
+        
 
+        get_map_size += 3
         for prop in prop_list:
             a = prop[0] 
             for n in range(a.__len__()):
@@ -191,8 +194,8 @@ class Props():
 
     def get_prop_dimensions(self, image: pygame.Surface):
         a = image.get_size()
-        b = math.ceil(a[0] / 60)
-        c = math.ceil(a[1] / 60)
+        b = math.ceil(a[0] / 60) + 3
+        c = math.ceil(a[1] / 60) + 3
         return (b, c)
 
 
