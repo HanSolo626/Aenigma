@@ -31,7 +31,7 @@ class PropMaker:
 
 
 ##############################
-        self.prop_num = 17
+        self.prop_num = 0
 ##############################
 
 
@@ -68,6 +68,8 @@ class PropMaker:
                     self.shd_y = self.FL.open_text_box(30, (135, 10), "black")
                     self.shd_y = int(self.shd_y) # type: ignore
                     self.shd_rect.y = self.rect.y + (self.shd_y / 39)
+                if event.key == pygame.K_q:
+                    sys.exit()
 
 
     def draw_all(self):

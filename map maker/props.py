@@ -98,6 +98,34 @@ class Props():
         self.length = self.get_prop_list_length(self.categories[self.current_category])
 
 
+    def place_prop(self, prop_instance, coordinates):
+        #a = []
+        #b = 0
+        #c = True
+        #d = []
+        if not [(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop] in prop_instance:
+            prop_instance.append([(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop])
+
+        #while c:
+        #    for prop in prop_instance:
+        #        if prop[0][1] == b:
+        #            a.append(prop)
+        #    if a == []:
+        #        if b > 201:
+        #            c = False
+        #        else:
+        #            b += 1
+        #            
+        #    else:
+        #        d.append(a)
+        #        b += 1
+        #        a.clear()
+
+        #prop_instance = d
+        #print(prop_instance)
+        return prop_instance
+
+
 
     def category_up(self):
         current = self.category_keys.index(self.current_category)

@@ -565,14 +565,20 @@ class MapMaker:
             self.access_map_instance = self.access.extract_access_map(self.map_data)
             self.r = True
 
-            #print(self.get_mouse_pos_access(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.access_control_size)[1]))
+        elif self.left_click and self.prop_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
+            self.prop_map = self.props.place_prop(
+                self.prop_map,
+                self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]),
+            )
+            self.prop_instance = self.props.get_prop_coordinates(self.prop_map)
+            self.r = True
 
+            
         elif self.left_click == False and self.r:
             if self.terrain_active:
                 self.save.changes_made = True
                 self.r = False
             if self.access_active:
-                #print("passed")
                 self.save.changes_made = True
                 self.r = False
 
@@ -680,7 +686,8 @@ class MapMaker:
             self.map_data_instance = importlib.import_module(file_name)
             self.terrain_instance = self.map_data_instance.terrain_map
             self.prop_map = self.map_data_instance.prop_map
-            self.prop_instance = self.props.get_prop_coordinates(self.map_data_instance.prop_map)
+            self.prop_instance = self.props.get_prop_coordinates(self.prop_map)
+            #print(self.prop_instance)
             self.object_instance = self.map_data_instance.object_map
             self.access_map_instance = self.access.extract_access_map(self.map_data)
             self.access_data_instance = self.map_data.access_map
