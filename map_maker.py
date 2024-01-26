@@ -579,12 +579,10 @@ class MapMaker:
 
             
         elif self.left_click == False and self.r:
-            if self.terrain_active:
+            if self.terrain_active or self.access_active or self.prop_active or self.object_active or self.sound_active:
                 self.save.changes_made = True
                 self.r = False
-            if self.access_active:
-                self.save.changes_made = True
-                self.r = False
+            
 
 
 
