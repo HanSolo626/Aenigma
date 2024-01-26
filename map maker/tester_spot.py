@@ -12,6 +12,13 @@ print(a == b)
 
 # prop data
 p = [
-    [4, (59, 76)]
+    [(5, 6), 4],
+    [(5, 5), 6],
+    [(40, 5), 5],
 # [img num, (x, y)]
 ]
+
+def get_prop_num(e):
+    return e[0][1]
+p.sort(key=get_prop_num)
+print(p)

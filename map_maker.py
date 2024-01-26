@@ -540,6 +540,8 @@ class MapMaker:
             if (abs(self.old_move_y) - self.move_y) < -10:
                 self.camera_y -= 1 * self.mouse_drag_multiplyer
                 self.recorded_lod = True
+        
+        # PAINT TERRAIN
         elif self.left_click == True and self.terrain_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
             #print(self.move_x, self.move_y)
             #print(self.get_minus_zoom_number())
@@ -553,6 +555,7 @@ class MapMaker:
                 )
             self.r = True
 
+        # PAINT ACCESS
         elif self.left_click and self.access_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
             self.access_data_instance = self.access.add_access_rect(
                 self.access_data_instance,
@@ -565,6 +568,7 @@ class MapMaker:
             self.access_map_instance = self.access.extract_access_map(self.map_data)
             self.r = True
 
+        # PLACE PROPS
         elif self.left_click and self.prop_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
             self.prop_map = self.props.place_prop(
                 self.prop_map,

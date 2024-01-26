@@ -99,30 +99,11 @@ class Props():
 
 
     def place_prop(self, prop_instance, coordinates):
-        #a = []
-        #b = 0
-        #c = True
-        #d = []
+        
         if not [(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop] in prop_instance:
             prop_instance.append([(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop])
-
-        #while c:
-        #    for prop in prop_instance:
-        #        if prop[0][1] == b:
-        #            a.append(prop)
-        #    if a == []:
-        #        if b > 201:
-        #            c = False
-        #        else:
-        #            b += 1
-        #            
-        #    else:
-        #        d.append(a)
-        #        b += 1
-        #        a.clear()
-
-        #prop_instance = d
-        #print(prop_instance)
+            prop_instance = self.sort_props(prop_instance)
+            
         return prop_instance
 
 
@@ -215,7 +196,28 @@ class Props():
                     c.append((a[0] + x, a[1] - y))
             k.append([c, b])
         return k
+    
+    def get_prop_num_x(self, e):
+        return e[0][0]
+    
+    def get_prop_num_y(self, e):
+        return e[0][1]
+    
+    def sort_props(self, prop_list: list):
+        a = []
+        b = []
+        for y in range(0, 199):
+            for prop in prop_list:
+                if prop[0][1] == y:
+                    a.append(prop)
+            a.sort(key=self.get_prop_num_x)
+            for prop in a:
+                b.append(prop)
+            a.clear()
+        return b
         
+            
+
         
 
 
