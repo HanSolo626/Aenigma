@@ -23,9 +23,15 @@ class Props():
         self.main_rect.y = 280
         self.main_name = "Props"
 
+        self.eraser_width, self.eraser_height = 150, 50
+        self.eraser_rect = pygame.Rect(0,0, self.eraser_width, self.eraser_height)
+        self.eraser_rect.x = 1000
+        self.eraser_rect.y = 600
+
         self.arrow_right = pygame.image.load(self.image_library.SYSTEM_IMAGES[5])
         self.arrow_left = pygame.image.load(self.image_library.SYSTEM_IMAGES[5])
         self.arrow_left = pygame.transform.flip(self.arrow_left, True, False)
+
 
         self.current_displayed_prop = 0
         self.current_category = str
@@ -33,6 +39,8 @@ class Props():
         self.categories = {}
         self.prop_keys = []
         self.prop_list_position = 0
+
+        self.eraser_on = False
 
 
         self.category_keys_length = self.category_keys.__len__()
@@ -47,6 +55,7 @@ class Props():
 
 
         self._prep_msg(msg)
+        self._prep_eraser()
         self.prep_prop_list_and_categories(self.prop_list)
 
 
@@ -105,8 +114,15 @@ class Props():
             prop_instance = self.sort_props(prop_instance)
             
         return prop_instance
+    
+    def erase_prop(self, prop_instance, coordinates):
 
+        if [(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop] in prop_instance:
+            prop_instance.remove([(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop])
+            prop_instance = self.sort_props(prop_instance)
 
+        return prop_instance
+    
 
     def category_up(self):
         current = self.category_keys.index(self.current_category)
@@ -159,6 +175,13 @@ class Props():
         else:
             self.length -= 1
             self.current_displayed_prop = self.categories[self.current_category][a[self.length]][6]
+
+
+    def on_off_eraser(self):
+        if self.eraser_on:
+            self.eraser_on = False
+        else:
+            self.eraser_on = True
 
 
     def get_props(self, prop_list, coordinates, get_map_size):
@@ -215,11 +238,6 @@ class Props():
                 b.append(prop)
             a.clear()
         return b
-        
-            
-
-        
-
 
 
     def get_prop_dimensions(self, image: pygame.Surface):
@@ -242,9 +260,18 @@ class Props():
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.main_rect.center
 
+    def _prep_eraser(self):
+        self.eraser_image = self.font.render("Eraser", True, self.text_color, self.button_color)
+        self.eraser_image_rect = self.eraser_image.get_rect()
+        self.eraser_image_rect.center = self.eraser_rect.center
+
     def draw_main(self):
         self.screen.fill(self.button_color, self.main_rect)
         self.screen.blit(self.msg_image, self.msg_image_rect)
+
+    def draw_eraser(self):
+        self.screen.fill(self.button_color, self.eraser_rect)
+        self.screen.blit(self.eraser_image, self.eraser_image_rect)
 
     def draw_portrait(self):
         a = self.categories[self.current_category][self.current_displayed_prop][4]
@@ -257,7 +284,7 @@ class Props():
         self.rect_left_key = left.get_rect()
         self.rect_left_key.x = 1095
         self.rect_left_key.y = 190
-
+    
         self.screen.blit(right, self.rect_right_key)
         self.screen.blit(left, self.rect_left_key)
 
@@ -274,8 +301,10 @@ class Props():
 
     def draw_all(self):
         self.draw_main()
+        self.draw_eraser()
         self.draw_selection_buttons(self.arrow_left, self.arrow_right)
         self.draw_type_selection_buttons(self.arrow_left, self.arrow_right)
         self.FL.draw_words(self.current_category, 30, (1015, 150), False, "black") # type: ignore
         self.FL.draw_words(self.prop_list[self.current_displayed_prop][0], 30, (1015, 375), False, "black") # type: ignore
+        self.FL.draw_words(str(self.eraser_on), 30, (1050, 550), False, "black")
         self.draw_portrait()

@@ -466,6 +466,9 @@ class MapMaker:
         if self.props.rect_right_prop.collidepoint(mouse_pos) and self.prop_active:
             self.props.prop_down()
 
+        if self.props.eraser_rect.collidepoint(mouse_pos) and self.prop_active:
+            self.props.on_off_eraser()
+
 
     def check_object_functions(self, mouse_pos):
         if self.objects.main_rect.collidepoint(mouse_pos):
@@ -570,10 +573,16 @@ class MapMaker:
 
         # PLACE PROPS
         elif self.left_click and self.prop_active and self.drag_area.rect.collidepoint(pygame.mouse.get_pos()):
-            self.prop_map = self.props.place_prop(
-                self.prop_map,
-                self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]),
-            )
+            if self.props.eraser_on:
+                self.prop_map = self.props.erase_prop(
+                    self.prop_map,
+                    self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]),
+                )
+            else:
+                self.prop_map = self.props.place_prop(
+                    self.prop_map,
+                    self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]),
+                )
             self.prop_instance = self.props.get_prop_coordinates(self.prop_map)
             self.r = True
 
