@@ -5,7 +5,7 @@ import os.path as path
 
 #sys.path.append('/Users/carsonball/Desktop/aenigma_game/map maker/game_maps')
 sys.path.append('saves')
-sys.path.append('map maker')
+sys.path.append('revolution data')
 
 from FacillimumLibrary import Facillimum_Library
 
