@@ -1,6 +1,6 @@
 import pygame, sys
 import os.path as path
-from map_makerREVOLUTION import MapMaker
+from map_makerREVOLUTION import MapMakerRevolution
 
 class Revolution:
     def __init__(self) -> None:
@@ -11,13 +11,14 @@ class Revolution:
 
         pygame.display.set_caption("Revolution")
 
-        self.mpm = MapMaker(False, self.screen)
+        self.mpm = MapMakerRevolution(False, self.screen)
 
         self.fpsClock = pygame.time.Clock()
 
         self.mpm.current_file_open = path.splitext(self.mpm.open_file.file_list[self.mpm.open_file.current_file])[0]
 
         self.mpm.screen_map_size = 1680
+        #self.mpm.screen_map_size = (self.mpm.screen_map_size / 780) * 780
         self.mpm.map_present = True
 
 

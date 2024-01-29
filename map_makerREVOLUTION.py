@@ -10,19 +10,19 @@ sys.path.append('revolution data')
 from FacillimumLibrary import Facillimum_Library
 
 
-from image_library import ImageLibrary
-from system import *
-from test_button import *
-from open_file import *
-from create_file import *
-from terrain import *
-from props import *
-from objects import *
-from sound import *
-from side_areas import *
-from access import *
+from image_libraryR import ImageLibrary
+from systemR import *
+from test_buttonR import *
+from open_fileR import *
+from create_fileR import *
+from terrainR import *
+from propsR import *
+from objectsR import *
+from soundR import *
+from side_areasR import *
+from accessR import *
 
-class MapMaker:
+class MapMakerRevolution:
     def __init__(self, internal: bool, screen):
         pygame.init()
 
@@ -91,7 +91,9 @@ class MapMaker:
         self.camera_x = 0
         self.camera_y = 0
 
+        ##########
         self.screen_map_size = 780
+        ##########
 
         self.mouse_drag_multiplyer = 1
         self.multiplyer_status = False
@@ -884,5 +886,5 @@ class MapMaker:
 
 
 if __name__ == '__main__':
-    ai = MapMaker(True, 0)
+    ai = MapMakerRevolution(True, 0)
     ai.run_program()

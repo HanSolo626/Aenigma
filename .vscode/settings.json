@@ -4,6 +4,7 @@
         "./map maker/game maps",
         "./map maker/game_maps",
         "./saves",
-        "./map maker"
+        "./map maker",
+        "./revolution data"
     ],
 }

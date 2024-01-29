@@ -1,8 +1,8 @@
 import pygame.font
 import pygame
 import shutil
-from image_library import ImageLibrary
-from open_file import OpenFile
+from image_libraryR import ImageLibrary
+from open_fileR import OpenFile
 
 
 class MainButton():

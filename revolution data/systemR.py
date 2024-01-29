@@ -2,7 +2,7 @@ import pygame
 import pygame.font
 import sys
 import time
-from image_library import ImageLibrary
+from image_libraryR import ImageLibrary
 
 class QuitProgram():
     def __init__(self, ai_game, msg) -> None:

@@ -5,7 +5,7 @@ import os
 import os.path as path
 import importlib
 import inspect
-from image_library import ImageLibrary
+from image_libraryR import ImageLibrary
 
 class OpenFile:
     def __init__(self, ai_game, msg) -> None:

@@ -1,7 +1,7 @@
 import pygame.font
 import pygame
-from image_library import ImageLibrary
-from create_file import PickTerrain
+from image_libraryR import ImageLibrary
+from create_fileR import PickTerrain
 
 class Terrain():
     def __init__(self, ai_game, msg) -> None:
