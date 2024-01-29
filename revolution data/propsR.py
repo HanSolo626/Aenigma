@@ -49,7 +49,7 @@ class Props():
         self.prop_list = {
         # number:["name", "type", img num, shadow num, effect access?, number, shadow offset]
             0:["Zero", "Test", 0, 0, False, 0, (5, 0)],
-            17:["Star", "Test", 1, 0, True, 17, (300, 2300)],
+            17:["Star", "Test", 1, 0, True, 17, (600, 5000)],
             4:["Logout", "Test", 2, 0, False, 4, (0, 0)]
         }
 

@@ -2,12 +2,12 @@ import pygame, sys, math, time
 import pygame.font
 
 sys.path.append('saves')
-sys.path.append('map maker')
+sys.path.append('revolution data')
 
 
 from FacillimumLibrary import Facillimum_Library
-from image_library import ImageLibrary
-from props import Props
+from image_libraryR import ImageLibrary
+from propsR import Props
 
 
 
@@ -31,8 +31,13 @@ class PropMaker:
 
 
 ##############################
-        self.prop_num = 0
+        self.prop_num = 17
+        self.screen_map_size = 1680
 ##############################
+        
+
+        self.really_crazy_num = (self.screen_map_size / 780) * 39
+        #self.really_crazy_num = 39
 
 
 
@@ -46,8 +51,8 @@ class PropMaker:
 
         self.shd = pygame.transform.scale(self.props.PROP_LIST[self.prop_num][3][0], (60,30))
         self.shd_rect = self.shd.get_rect()
-        self.shd_rect.x = self.rect.x + (self.shd_x / 39)
-        self.shd_rect.y = self.rect.y + (self.shd_y / 39)
+        self.shd_rect.x = self.rect.x + (self.shd_x / self.really_crazy_num)
+        self.shd_rect.y = self.rect.y + (self.shd_y / self.really_crazy_num)
 
         # 39
 
@@ -63,11 +68,11 @@ class PropMaker:
                 if event.key == pygame.K_x:
                     self.shd_x = self.FL.open_text_box(30, (15, 10), "black")
                     self.shd_x = int(self.shd_x) # type: ignore
-                    self.shd_rect.x = self.rect.x + (self.shd_x / 39)
+                    self.shd_rect.x = self.rect.x + (self.shd_x / self.really_crazy_num)
                 if event.key == pygame.K_y:
                     self.shd_y = self.FL.open_text_box(30, (135, 10), "black")
                     self.shd_y = int(self.shd_y) # type: ignore
-                    self.shd_rect.y = self.rect.y + (self.shd_y / 39)
+                    self.shd_rect.y = self.rect.y + (self.shd_y / self.really_crazy_num)
                 if event.key == pygame.K_q:
                     sys.exit()
 
