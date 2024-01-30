@@ -35,8 +35,8 @@ class MapMakerRevolution:
             self.map_posY = 50
         else:
             self.screen = screen
-            self.map_posX = 0
-            self.map_posY = 0
+            self.map_posX = -60
+            self.map_posY = -60
         self.internal = internal
 
         # get FL
@@ -96,6 +96,12 @@ class MapMakerRevolution:
         ##########
 
         self.mouse_drag_multiplyer = 1
+        #self.mouse_drag_multiplyer = 0.2
+
+        self.display_offset_x = 0.0
+        self.display_offset_y = 0.0
+
+
         self.multiplyer_status = False
 
         self.screen_rect = self.screen.get_rect()
@@ -117,7 +123,7 @@ class MapMakerRevolution:
 
         self.displayed_map = {}
         self.displayed_access_map = {}
-        self.current_size = 30
+        self.current_size = 60 # NOTE
         self.access_control_size = 10
         self.move_x = 0
         self.move_y = 0
@@ -127,6 +133,13 @@ class MapMakerRevolution:
         self.recorded_lod = True
         self.left_click = False
         self.right_click = False
+
+        self.going_right = False
+        self.going_left = False
+        self.going_up = False
+        self.going_down = False
+
+        self.movement_rate = 5
 
         #random stuff
         self.h = False
@@ -180,18 +193,22 @@ class MapMakerRevolution:
                         self.mouse_drag_multiplyer = 8
                     else:
                         self.mouse_drag_multiplyer -= 1
+
                 elif event.key == pygame.K_RIGHT:
-                    self.player_X -= 60 * self.mouse_drag_multiplyer
-                    self.camera_x += 1 * self.mouse_drag_multiplyer
+                    self.going_right = True
+
+
                 elif event.key == pygame.K_LEFT:
-                    self.player_X += 60 * self.mouse_drag_multiplyer
-                    self.camera_x -= 1 * self.mouse_drag_multiplyer
+                    self.going_left = True
+
+
                 elif event.key == pygame.K_UP:
-                    self.player_Y += 60 * self.mouse_drag_multiplyer
-                    self.camera_y -= 1 * self.mouse_drag_multiplyer
+                    self.going_up = True
+
+
                 elif event.key == pygame.K_DOWN:
-                    self.player_Y -= 60 * self.mouse_drag_multiplyer
-                    self.camera_y += 1 * self.mouse_drag_multiplyer
+                    self.going_down = True
+
                 
 
                 #elif event.key == pygame.K_t:
@@ -200,6 +217,22 @@ class MapMakerRevolution:
                 elif event.key == pygame.K_s:
                     self.camera_x = 0
                     self.camera_y = 0
+
+            elif event.type == pygame.KEYUP and self.map_present:
+                if event.key == pygame.K_RIGHT:
+                    self.going_right = False
+
+
+                elif event.key == pygame.K_LEFT:
+                    self.going_left = False
+
+
+                elif event.key == pygame.K_UP:
+                    self.going_up = False
+
+
+                elif event.key == pygame.K_DOWN:
+                    self.going_down = False
 
             if event.type == pygame.MOUSEWHEEL:
                 if event.y > 0 and not self.access_active:
@@ -276,8 +309,8 @@ class MapMakerRevolution:
                 self.image = self.image_library.PRELOADED_IMAGES[image_number][0]
                 self.image = pygame.transform.scale(self.image, (self.current_size, self.current_size))
                 self.rect = self.image_library.PRELOADED_IMAGES[image_number][1]
-                self.rect.x = numberX
-                self.rect.y = numberY
+                self.rect.x = numberX + self.display_offset_x
+                self.rect.y = numberY + self.display_offset_y
                 self.screen.blit(self.image, self.rect)
                 numberX += self.current_size
                 row_position +=1
@@ -317,8 +350,8 @@ class MapMakerRevolution:
             xx = ((coor[0]) + self.map_posX) + xv
             yy = ((coor[1]) + self.map_posY) + yv
             
-            img[1].x = xx  #- (get_map_size)
-            img[1].y = yy  #- (get_map_size)
+            img[1].x = xx + self.display_offset_x #- (get_map_size)
+            img[1].y = yy + self.display_offset_y #- (get_map_size)
             self.screen.blit(img_sur, img[1])
 
 
@@ -348,8 +381,8 @@ class MapMakerRevolution:
             yv = ((coor[1] - y) * self.current_size + get_map_size) + (self.props.PROP_LIST[num][10][1] / self.get_map_size())
             xx = ((coor[0]) + self.map_posX) + xv
             yy = ((coor[1]) + self.map_posY) + yv
-            img[1].x = xx 
-            img[1].y = yy 
+            img[1].x = xx + self.display_offset_x
+            img[1].y = yy + self.display_offset_y
             self.screen.blit(img_sur, img[1])
 
 
@@ -599,6 +632,45 @@ class MapMakerRevolution:
             if self.terrain_active or self.access_active or self.prop_active or self.object_active or self.sound_active:
                 self.save.changes_made = True
                 self.r = False
+
+    def check_keys(self):
+        if self.going_up:
+            self.move_up()
+        if self.going_down:
+            self.move_down()
+        if self.going_right:
+            self.move_right()
+        if self.going_left:
+            self.move_left()
+
+
+    def move_up(self):
+        self.player_Y += 60 * self.mouse_drag_multiplyer
+        self.display_offset_y += self.movement_rate
+        if self.display_offset_y >= 60:
+            self.display_offset_y = 0.0
+            self.camera_y -= 1 * self.mouse_drag_multiplyer
+
+    def move_down(self):
+        self.player_Y -= 60 * self.mouse_drag_multiplyer
+        self.display_offset_y -= self.movement_rate
+        if self.display_offset_y <= -60:
+            self.display_offset_y = 0.0        
+            self.camera_y += 1 * self.mouse_drag_multiplyer
+
+    def move_left(self):
+        self.player_X += 60 * self.mouse_drag_multiplyer
+        self.display_offset_x += self.movement_rate
+        if self.display_offset_x >= 60:
+            self.display_offset_x = 0.0
+            self.camera_x -= 1 * self.mouse_drag_multiplyer
+
+    def move_right(self):
+        self.player_X -= 60 * self.mouse_drag_multiplyer
+        self.display_offset_x -= self.movement_rate
+        if self.display_offset_x <= -60:
+            self.display_offset_x = 0.0
+            self.camera_x += 1 * self.mouse_drag_multiplyer
             
 
 
@@ -627,10 +699,12 @@ class MapMakerRevolution:
     def zoom_out(self):
         if not self.current_size == 10:
             self.current_size -= 5
+        print("zoom out disabled")
     
     def zoom_in(self):
         if not self.current_size == 100:
             self.current_size += 5
+        print("zoom in disabled")
 
     def set_mean_zoom(self):
         self.current_size = 60

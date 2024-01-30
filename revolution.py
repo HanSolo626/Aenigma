@@ -17,7 +17,7 @@ class Revolution:
 
         self.mpm.current_file_open = path.splitext(self.mpm.open_file.file_list[self.mpm.open_file.current_file])[0]
 
-        self.mpm.screen_map_size = 1680
+        self.mpm.screen_map_size = 1800 # 1680
         #self.mpm.screen_map_size = (self.mpm.screen_map_size / 780) * 780
         self.mpm.map_present = True
 
@@ -29,6 +29,7 @@ class Revolution:
         #        sys.exit()
         
         self.mpm.check_events()
+        self.mpm.check_keys()
 
 
     
@@ -44,7 +45,7 @@ class Revolution:
 
         while True:
             self.check_main_events()
-            self.screen.fill((0,0,150))
+            self.screen.fill((0,0,0))
             self.mpm.draw_world(self.mpm.map_data_instance, self.mpm.camera_x, self.mpm.camera_y)
 
 
