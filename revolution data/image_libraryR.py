@@ -106,7 +106,7 @@ class ImageLibrary():
         """Returns a list of all 60x60 px. images along with the dark square."""
 
         self.folderlist = os.listdir("images/terrain_images")
-        c = pygame.image.load("images/terrain_images/dark_square.png")
+        c = pygame.image.load("images/terrain_images/dark_square.png").convert()
         self.folderlist.remove("dark_square.png")
         b = []
         for v in range(self.folderlist.__len__()):

@@ -37,6 +37,7 @@ class MapMakerRevolution:
             self.screen = screen
             self.map_posX = -60
             self.map_posY = -60
+            
         self.internal = internal
 
         # get FL
@@ -139,7 +140,7 @@ class MapMakerRevolution:
         self.going_up = False
         self.going_down = False
 
-        self.movement_rate = 5
+        self.movement_rate = 10
 
         #random stuff
         self.h = False
@@ -274,24 +275,27 @@ class MapMakerRevolution:
 
 
     def new_display_map(self, map, x, y):
+        
         map = map.terrain_map
         #print(map[1].__len__())
         ls = []
         self.h = 0
         self.v = 0
         b = 0
-        for v in range(self.get_map_size()):
+        thing1 = self.get_map_size()
+        thing2 = self.get_half_size()
+        for v in range(thing1):
             self.v += 1
             self.v = int(self.v)
-            for h in range(self.get_map_size()):
+            for h in range(thing1):
                 self.h += 1
-                if (x + self.h - self.get_half_size()) < 0:
+                if (x + self.h - thing2) < 0:
                     ls.append(0)
                 else:
                     try:
-                        b = map[y + self.v - (self.get_half_size() - 1)]
+                        b = map[y + self.v - (thing2 - 1)]
                         try:
-                            ls.append(b[x + self.h - self.get_half_size()])
+                            ls.append(b[x + self.h - thing2])
                         except IndexError:
                             ls.append(0)
                     except KeyError:
@@ -299,25 +303,45 @@ class MapMakerRevolution:
             self.displayed_map[self.v] = ls
             ls = []
             self.h = 0
+        #print("build time")
+        #print(time.time() - ntime)
+        
         numberX = self.map_posX
         numberY = self.map_posY
         row_number = 1
         row_position = 0
-        for y in range(self.get_map_size()):
-            for x in range(self.get_map_size()):
+        #ntime = time.time()
+        blit = self.screen.blit
+        t = self.image_library.PRELOADED_IMAGES
+        for y in range(thing1):
+            for x in range(thing1):
+                #a = time.time()
                 image_number = self.displayed_map[row_number][row_position]
-                self.image = self.image_library.PRELOADED_IMAGES[image_number][0]
-                self.image = pygame.transform.scale(self.image, (self.current_size, self.current_size))
+                self.image = t[image_number][0]
+                
+                #p = time.time()
+                #self.image = pygame.transform.scale(self.image, (self.current_size, self.current_size))
+                #print(time.time() - p)
+                
                 self.rect = self.image_library.PRELOADED_IMAGES[image_number][1]
-                self.rect.x = numberX + self.display_offset_x
-                self.rect.y = numberY + self.display_offset_y
-                self.screen.blit(self.image, self.rect)
-                numberX += self.current_size
-                row_position +=1
+                #self.rect.x = numberX + self.display_offset_x
+                #self.rect.y = numberY + self.display_offset_y
+                self.rect.x, self.rect.y = numberX + self.display_offset_x, numberY + self.display_offset_y
+                
+                blit(self.image, self.rect)
+                
+                #numberX += self.current_size
+                #row_position +=1
+                numberX, row_position = numberX + self.current_size, row_position + 1
+                #print(time.time() - a)
             numberY += self.current_size
             row_number +=1
             numberX = self.map_posX
             row_position = 0
+        b = time.time()
+        
+        #print("display time")
+        #print(b - ntime2)
 
 
 
@@ -697,13 +721,13 @@ class MapMakerRevolution:
 
 
     def zoom_out(self):
-        if not self.current_size == 10:
-            self.current_size -= 5
+        #if not self.current_size == 10:
+        #    self.current_size -= 5
         print("zoom out disabled")
     
     def zoom_in(self):
-        if not self.current_size == 100:
-            self.current_size += 5
+        #if not self.current_size == 100:
+        #    self.current_size += 5
         print("zoom in disabled")
 
     def set_mean_zoom(self):
