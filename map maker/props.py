@@ -107,14 +107,12 @@ class Props():
         self.length = self.get_prop_list_length(self.categories[self.current_category])
 
 
-    def place_prop(self, prop_instance, coordinates, map_size):
+    def place_prop(self, prop_instance, coordinates):
         
-        if not coordinates[0]-1 < 0 and not coordinates[1]-1 < 0 and not coordinates[0]-1 > map_size and not coordinates[1]-1 > map_size:
-
-            if not [(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop] in prop_instance:
-                prop_instance.append([(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop])
-                prop_instance = self.sort_props(prop_instance)
-                
+        if not [(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop] in prop_instance:
+            prop_instance.append([(coordinates[0]-1, coordinates[1]-1), self.current_displayed_prop])
+            prop_instance = self.sort_props(prop_instance)
+            
         return prop_instance
     
     def erase_prop(self, prop_instance, coordinates):

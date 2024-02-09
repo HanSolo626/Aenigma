@@ -89,11 +89,11 @@ class Terrain():
         if not self.brush_size == 1:
             self.brush_size -= 1
 
-    def paint_terrain(self, map, x, y, size, type, map_size):
+    def paint_terrain(self, map, x, y, size, type):
         a = size
         c= 0
         l = 0
-        if x < 0 or y < 0 or x >= map_size or y >= map_size:
+        if x < 0 or y < 0:
             return map
         else:
             if size == 1:
