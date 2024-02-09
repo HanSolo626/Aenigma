@@ -102,6 +102,7 @@ class MapMaker:
 
         self.current_message = "Welcome to the Aenigma Map Maker!"
         self.saved_text = 'new'
+        self.saved_numbers = '200'
 
         self.displayed_map = {}
         self.displayed_access_map = {}
@@ -148,7 +149,14 @@ class MapMaker:
                     self.current_message = self.user_text
                     self.set_active_tool("Past")
                 elif event.key == pygame.K_RETURN and self.text_active:
-                    self.saved_text = self.user_text
+                    y = True
+                    for t in self.user_text:
+                        if not t in "0123456789":
+                            y = False
+                    if y:
+                        self.saved_numbers = self.user_text
+                    else:
+                        self.saved_text = self.user_text
                     self.user_text = ''
                     self.current_message = self.user_text
                     self.set_active_tool("Past")
@@ -181,7 +189,7 @@ class MapMaker:
                     self.player_Y -= 60 * self.mouse_drag_multiplyer
                     self.camera_y += 1 * self.mouse_drag_multiplyer
                 elif event.key == pygame.K_SPACE and self.terrain_active:
-                    self.terrain.paint_terrain(self.map_data.terrain_map, self.player_X / 60, self.player_Y / 60, 1, self.pick_terrain.current_image)
+                    self.terrain.paint_terrain(self.map_data.terrain_map, self.player_X / 60, self.player_Y / 60, 1, self.pick_terrain.current_image, self.pick_terrain.current_map_size)
 
                 #elif event.key == pygame.K_t:
                     #print(self.displayed_access_map)
@@ -189,6 +197,9 @@ class MapMaker:
                 elif event.key == pygame.K_s:
                     self.camera_x = 0
                     self.camera_y = 0
+                    
+                elif event.key == pygame.K_d:
+                    self.current_size = 30
 
             if event.type == pygame.MOUSEWHEEL:
                 if event.y > 0 and not self.access_active:
@@ -300,12 +311,14 @@ class MapMaker:
             scale_ratio = self.props.PROP_LIST[num][7]
             img_sur = img[0]
             img_sur = pygame.transform.scale(img[0], (scale_ratio[0] * self.current_size, scale_ratio[1] * self.current_size))
+
             xv = ((coor[0] - x) * self.current_size + get_map_size)
             yv = ((coor[1] - y) * self.current_size + get_map_size)
-            #xx = ((coor[0] * self.current_size) + 250) + xv
-            xx = ((coor[0]) + 250) + xv
-            #yy = ((coor[1] * self.current_size) + 50) + yv
-            yy = ((coor[1]) + 50) + yv
+            
+            #xx = ((coor[0]) + 250) + xv
+            xx = 250 + xv
+            #yy = ((coor[1]) + 50) + yv
+            yy = 50 + yv
             
             img[1].x = xx  #- (get_map_size)
             img[1].y = yy  #- (get_map_size)
@@ -336,10 +349,11 @@ class MapMaker:
             img_sur = pygame.transform.scale(img_sur, (scale_ratio[0] * self.current_size, scale_ratio[1] * self.current_size))
             xv = ((coor[0] - x) * self.current_size + get_map_size) + (self.props.PROP_LIST[num][10][0] / self.get_map_size())
             yv = ((coor[1] - y) * self.current_size + get_map_size) + (self.props.PROP_LIST[num][10][1] / self.get_map_size())
-            #xx = ((coor[0] * self.current_size) + 250) + xv
-            xx = ((coor[0]) + 250) + xv
-            #yy = ((coor[1] * self.current_size) + 50) + yv
-            yy = ((coor[1]) + 50) + yv
+            
+            #xx = ((coor[0]) + 250) + xv
+            xx = 250 + xv
+            #yy = ((coor[1]) + 50) + yv
+            yy = 50 + yv
             img[1].x = xx 
             img[1].y = yy 
             self.screen.blit(img_sur, img[1])
@@ -430,9 +444,13 @@ class MapMaker:
             self.pick_terrain.add_substract_terrain("+")
 
         if self.affirm_file.affirm_rect.collidepoint(mouse_pos) and self.create_file_active:
-            self.current_message = self.affirm_file.build_new_map(self.saved_text, 200, self.pick_terrain.current_image, 3)
+            self.pick_terrain.current_map_size = int(self.saved_numbers)
+            self.current_message = self.affirm_file.build_new_map(self.saved_text, self.pick_terrain.current_map_size, self.pick_terrain.current_image, 3)
 
         if self.pick_terrain.pick_name_rect.collidepoint(mouse_pos) and self.create_file_active:
+            self.set_active_tool("Text")
+
+        if self.pick_terrain.pick_size_rect.collidepoint(mouse_pos) and self.create_file_active:
             self.set_active_tool("Text")
 
 
@@ -518,7 +536,7 @@ class MapMaker:
             self.recorded_lod = True
 
         elif self.save.main_rect.collidepoint(mouse_pos) and self.map_present and self.save.changes_made:
-            self.affirm_file.write_to_file(self.current_file_open, 'w', self.terrain_instance, self.prop_map, [], [], self.access_data_instance, 1, 0)
+            self.affirm_file.write_to_file(self.current_file_open, 'w', self.terrain_instance, self.prop_map, [], [], self.access_data_instance, 1, 0, self.pick_terrain.current_map_size)
             self.save.changes_made = False
             
 
@@ -554,7 +572,8 @@ class MapMaker:
                 self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[0],
                 self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1])[1],
                 self.terrain.brush_size,
-                self.pick_terrain.current_image
+                self.pick_terrain.current_image,
+                self.pick_terrain.current_map_size
                 )
             self.r = True
 
@@ -582,6 +601,7 @@ class MapMaker:
                 self.prop_map = self.props.place_prop(
                     self.prop_map,
                     self.get_mouse_pos_terrain(self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[0], self.get_mouse_click_pos(pygame.mouse.get_pos(), self.current_size)[1]),
+                    self.pick_terrain.current_map_size
                 )
             self.prop_instance = self.props.get_prop_coordinates(self.prop_map)
             self.r = True
@@ -704,6 +724,7 @@ class MapMaker:
             self.access_data_instance = self.map_data.access_map
             self.player_X = self.map_data.player_x
             self.player_Y = self.map_data.player_y
+            self.pick_terrain.current_map_size = self.map_data.size_x
             self.save.changes_made = False
 
     def get_map_size(self):
@@ -783,7 +804,9 @@ class MapMaker:
         self.pick_terrain.draw_main()
         self.pick_terrain.draw_selected_image(self.pick_terrain.load_selected_terrain())
         self.pick_terrain.draw_words(self.pick_terrain.prep_words(self.saved_text)[0], self.pick_terrain.prep_words(self.saved_text)[1])
+        self.FL.draw_words(self.saved_numbers, 45, (1050, 450), False, "black")
         self.pick_terrain.draw_pick_name()
+        self.pick_terrain.draw_pick_size()
 
     def draw_terrain_buttons(self):
         self.terrain.draw_all()
