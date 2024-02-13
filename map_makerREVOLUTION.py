@@ -812,6 +812,75 @@ class MapMakerRevolution:
             self.player_Y = self.map_data.player_y
             self.save.changes_made = False
 
+    def build_terrain_map(self, terrain_instance: dict):
+        new_map = {}
+        new_row = []
+        il_ref = self.image_library.PRELOADED_IMAGES
+        tf_ref = self.image_library.TERRAIN_FILEPATHS
+        print(tf_ref)
+
+        a = True
+        b = True
+
+        h = 0
+        
+        # Ensure map size is even
+        if terrain_instance.__len__() % 2 == 0:
+            print("Map size even. Assuming X length is even")
+        else:
+            raise AssertionError("Map size is uneven. Cannot build.")
+        
+        # Build images
+        for y in range(terrain_instance.__len__()):
+            
+            if a:
+                for x in range(terrain_instance[y+1].__len__()):
+
+                    if b:
+                        # Build new image and save it
+                        topleft_image = Image.open(tf_ref[terrain_instance[y+1][x]])
+                        topright_image = Image.open(tf_ref[terrain_instance[y+1][x+1]])
+                        bottomleft_image = Image.open(tf_ref[terrain_instance[y+2][x]])
+                        bottomright_image = Image.open(tf_ref[terrain_instance[y+2][x+1]])
+                        new_img = Image.new('RGB', (120, 120), (0,0,0))
+                        new_img.paste(topleft_image, (0,0))
+                        new_img.paste(topright_image, (60, 0))
+                        new_img.paste(bottomleft_image, (0, 60))
+                        new_img.paste(bottomright_image, (60, 60))
+                        name = str(y)+str(x)+'.png'
+                        new_img.save(name,'PNG')
+
+                        # Resolve new image to new_map
+                        ordered_img = pygame.image.load(name)
+                        os.remove(name)
+                        new_row.append([ordered_img, ordered_img.get_rect()])
+                        #progress = 100 * float(y)/float(terrain_instance.__len__())
+                        #self.screen.fill((0,0,0))
+                        #self.FL.draw_words(str(progress)+"%", 100, (100, 100), False, "white")
+                        #pygame.display.update()
+                        #for event in pygame.event.get():
+                        #    # check for quit
+                        #    if event.type == pygame.QUIT:
+                        #        sys.exit()
+                    
+
+                        # Prepare for next step
+                        b = False
+                    else:
+                        b = True
+                a = False
+                h += 1
+                new_map[h] = new_row.copy()
+                new_row.clear()
+            else:
+                a = True
+
+        return new_map
+        
+
+
+
+
     def get_map_size(self):
         return round(self.screen_map_size / self.current_size)
     
